@@ -1,2 +1,33 @@
 body {
 }
+
+#header {
+  height: 140px;
+}
+#header h1 {
+  float: left;
+  width: 500px;
+}
+.post_summary .post_date {
+	font-family: Courier;
+}
+#header menu {
+  float: right;
+}
+
+#footer {
+	padding-top: 50px;
+}
+
+.post_summary {	padding-top: 10px; padding-left: 10px; }
+.posts {
+	padding-left: 20px;
+}
+
+.repo {
+	margin: 10px;
+}
+
+.repo h3 {
+	margin-bottom: 1px;
+}

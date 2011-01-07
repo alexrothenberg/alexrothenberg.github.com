@@ -3,9 +3,14 @@ title: Alex Rothenberg
 layout: master
 ---
 
-<ul class="posts">
+<div class="posts">
   {% for post in site.posts %}
-    <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+    <div class="post_summary">
+      <span class="post_date">{{ post.date | date_to_string }}</span>
+      <a class="post_title" href="{{ post.url }}">{{ post.title }}</a>
+    </div>
   {% endfor %}
-</ul>
+</div>
+
+
 
