@@ -16,8 +16,23 @@ title: Alex Rothenberg
     repos.sort(function(a,b) {
       return b.watchers - a.watchers;
     });
-    
-    $(repos.slice(0,6)).each(function() {
+
+    other_peoples_repos = [
+      {
+        "url": "https://github.com/patshaughnessy/code_buddy/",
+        "name": "code_buddy",
+        "description": "Make your stack come alive"
+      },
+      {
+        "url": "https://github.com/ReliefHub/reliefhub",
+        "name": "reliefhub",
+        "description": "Working with orphanages in third world countries."
+      }
+    ]
+
+    all_repos = other_peoples_repos.concat(repos)
+
+    $(all_repos.slice(0,6)).each(function() {
       $('#github-projects').append("\
 <div class='repo'>\
   <h3><a href='" + this.url + "'>" + this.name + "</a></h3>\
