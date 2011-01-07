@@ -9,6 +9,3 @@ layout: master
   {% endfor %}
 </ul>
 
-<div>
-  Speaker at OSCON 2010 [Off the Beaten Path: Using Rails in the Enterprise](http://www.oscon.com/oscon2010/public/schedule/detail/13664)
-</div>
