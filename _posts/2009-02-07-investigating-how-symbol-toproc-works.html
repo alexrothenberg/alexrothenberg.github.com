@@ -4,4 +4,130 @@ layout: post
 title: Investigating how Symbol to_proc works
 time: 2009-02-07 11:39:00 -05:00
 ---
-One of the things I love about Ruby is how expressive it is and how with open classes it can be optimized to become even more expressive.  Since I started using Ruby I don't think I've written a single for or while loop - something I couldn't have imagined saying with any other language!  Of course I do this by using iterators and writing code like<br /><br /><pre><br />user_names = User.all.collect {|user| user.name}<br /></pre><br /><br />I recently started discovered I could write the same thing even more concisely (as long as I'm using Rails or Ruby 1.9)<br /><br /><pre><br />user_names = User.all.collect(&:name)<br /></pre><br /><br />I decided to investigate how this works.<br /><br />First I found some good posts by <a href="http://pragdave.pragprog.com/pragdave/2005/11/symbolto_proc.html">Prag Dave</a> and <a href="http://railscasts.com/episodes/6">Ryan Bates</a> and at <a href="http://www.infoq.com/news/2008/02/to_proc-currying-ruby19">InfoQ</a>.  This helped but I still didn't understand it all so decided to dig further.<br /><br />First I took a look at how Rails extends <a href="http://github.com/rails/rails/blob/24ac1d6bdc860d234e70dd4cd4713bd13ac9d40d/activesupport/lib/active_support/core_ext/symbol.rb">Symbol</a> <br /><br /><pre><br />unless :to_proc.respond_to?(:to_proc)<br />  class Symbol<br />    # Turns the symbol into a simple proc, which is especially useful for enumerations. Examples:<br />    #<br />    # # The same as people.collect { |p| p.name }<br />    # people.collect(&:name)<br />    #<br />    # # The same as people.select { |p| p.manager? }.collect { |p| p.salary }<br />    # people.select(&:manager?).collect(&:salary)<br />    def to_proc<br />      Proc.new { |*args| args.shift.__send__(self, *args) }<br />    end<br />  end<br />end<br /></pre><br /><br />So they defined the <span style="font-family: courier new;">to_proc</span> method on symbol and that means the new code will be called when we write <span style="font-family: courier new;">&:name</span> because it magically gets transformed into <span style="font-family: courier new;">:name.to_proc</span>.  I learned something but still needed to learn more to understand how it all works.<br /><br />Why does the <span style="font-family: courier new;">&</span> cause Ruby to call <span style="font-family: courier new;">to_proc</span>?  I knew that <span style="font-family: courier new;">&</span> in the last parameter declaration will pass a provided block as a parameter but this seems to be doing the reverse.  Calling a method as an argument but having it interpreted as a block.  I tried a couple of experiments in irb<br /><br /><pre><br />def was_block_given?<br />  block_given?<br />end<br /><br /># As expected<br />was_block_given? {}<br />=> true <br /><br /># Passing a proc is not the same as having a block<br />was_block_given? Proc.new{}<br />ArgumentError: wrong number of arguments (1 for 0)<br /> from (irb):195:in `was_block_given?'<br /> from (irb):195<br /><br /># Prefixing the proc with an & makes it like a block<br />was_block_given? &Proc.new{}<br />=> true<br /></pre><br /><br />It was not all as I expected but some reading through the <a href="http://www.pragprog.com/titles/ruby/programming-ruby">PickAxe book</a> led me to a better understanding.  I found this paragraph in the Calling A Method section (page 115 in my copy)<br /><br /><blockquote>If the last argument to a method is preceded by an ampersand, Ruby assumes that it is a Proc object. <br />It removes it from the parameter list, converts the Proc object into a block, and associates it with the method. <br /></blockquote><br /><br />Ok so now I know why when Ruby sees <span style="font-family: courier new;">User.all.collect(&:name)</span> it invokes the <span style="font-family: courier new;">collect</span> method with <span style="font-family: courier new;">name.to_proc</span> as a block.  Next, it was time to figure out why the code Rails put in the to_proc method worked.  I took a look at the <a href="http://github.com/evanphx/rubinius/blob/83ab3fd8b6645ac7389e97b5a1969e5eb3b2b038/kernel/common/enumerable.rb">Rubinius implementation Enumerable</a><br /><br /><pre><br />  def collect<br />    ary = []<br />    if block_given?<br />      each { |o| ary << yield(o) }<br />    else<br />      each { |o| ary << o }<br />    end<br />    ary<br />  end<br /></pre><br /><br />Again I decided to experiment with irb to see what each part of the to_proc implementation was doing.  First I redefined the Symbol to_proc again with a puts so I could confirm what was going on.<br /><br /><pre><br />class Symbol<br />  # Turns the symbol into a simple proc, which is especially useful for enumerations. Examples:<br />  #<br />  #   # The same as people.collect { |p| p.name }<br />  #   people.collect(&:name)<br />  #<br />  #   # The same as people.select { |p| p.manager? }.collect { |p| p.salary }<br />  #   people.select(&:manager?).collect(&:salary)<br />  def to_proc<br />    Proc.new do |*args| <br />      puts "to_proc args: #{args.inspect}"<br />      args_shift = args.shift<br />      puts "to_proc: #{args_shift.inspect}.__send__(#{self.inspect}, *#{args.inspect})"<br />      result = args_shift.__send__(self, *args) <br />      puts "to_proc result: #{result.inspect}"<br />      result<br />    end<br />  end<br />end<br /><br /># Make the call and see what happens<br />[1].collect( &:to_s)<br /># to_proc args: [1]<br /># to_proc: 1.__send__(:to_s, *[])<br /># to_proc result: "1"<br /># => ["1"]<br /></pre><br /><br />Its brute force but tells us everything we need to know.  As expected <span style="font-family: courier new;">collect</span> yields to our proc/block with the element in a variable length argument <span style="font-family: courier new;">[1]</span>, it extracts the <span style="font-family: courier new;">1</span> and sends it the <span style="font-family: courier new;">to_s</span> method with no arguments returning the string <span style="font-family: courier new;">"1"</span>.  At this point I think I  understand how it all works and decide to confirm by running a few more (more complicated) tests in irb<br /><br /><pre><br />[1, 'hi', :b].collect( &:to_s)<br /># to_proc args: [1]<br /># to_proc: 1.__send__(:to_s, *[])<br /># to_proc result: "1"<br /># to_proc args: ["hi"]<br /># to_proc: "hi".__send__(:to_s, *[])<br /># to_proc result: "hi"<br /># to_proc args: [:b]<br /># to_proc: :b.__send__(:to_s, *[])<br /># to_proc result: "b"<br /># => ["1", "hi", "b"]<br /><br />[1,2,3].inject(&:+)<br /># to_proc args: [1, 2]<br /># to_proc: 1.__send__(:+, *[2])<br /># to_proc result: 3<br /># to_proc args: [3, 3]<br /># to_proc: 3.__send__(:+, *[3])<br /># to_proc result: 6<br /># => 6<br /><br />1.__send__(:+, *[2])<br /># => 3<br /><br />:b.__send__(:to_s, *[])<br /># => "b"<br /></pre><br /><br />It all works as expected and I decide I know as much as I need to about this and call it a day.<br /><br />So why did I bother figuring all this out and then writing it up?  Mostly because I didn't know how it worked and thought there was some 'magic' going on.  I could have continued using this feature without understanding how it worked but now that I understand how it works if some need ever arises for me to do some similar magic I know how to go about it.  As for writing it up I hope someone else may read this and find it useful but by I increased my own understanding through the act of writing.<div class="blogger-post-footer"><img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-8845862891270009488?l=www.alexrothenberg.com' alt='' /></div>
+
+<div>
+  One of the things I love about Ruby is how expressive it is and how with open classes it can be optimized to become even more expressive. Since I started using Ruby I don't think I've written a single for or while loop - something I couldn't have imagined saying with any other language! Of course I do this by using iterators and writing code like<br>
+
+{% highlight ruby %}
+user_names = User.all.collect {|user| user.name }
+{% endhighlight %}
+  
+  <br>
+  I recently started discovered I could write the same thing even more concisely (as long as I'm using Rails or Ruby 1.9)<br>
+
+{% highlight ruby %}
+user_names = User.all.collect(&amp;:name)
+{% endhighlight %}
+
+  <br>
+  I decided to investigate how this works.<br>
+  <br>
+  First I found some good posts by <a href="http://pragdave.pragprog.com/pragdave/2005/11/symbolto_proc.html">Prag Dave</a> and <a href="http://railscasts.com/episodes/6">Ryan Bates</a> and at <a href="http://www.infoq.com/news/2008/02/to_proc-currying-ruby19">InfoQ</a>. This helped but I still didn't understand it all so decided to dig further.<br>
+  <br>
+  First I took a look at how Rails extends <a href="http://github.com/rails/rails/blob/24ac1d6bdc860d234e70dd4cd4713bd13ac9d40d/activesupport/lib/active_support/core_ext/symbol.rb">Symbol</a><br>
+  <br>
+{% highlight ruby %}
+unless :to_proc.respond_to?(:to_proc)
+  class Symbol
+    # Turns the symbol into a simple proc, which is especially useful for enumerations. Examples:
+    #
+    #   # The same as people.collect { |p| p.name }
+    #   people.collect(&:name)
+    #
+    #   # The same as people.select { |p| p.manager? }.collect { |p| p.salary }
+    #   people.select(&:manager?).collect(&:salary)
+    def to_proc
+      Proc.new { |*args| args.shift.__send__(self, *args) }
+    end
+  end
+end
+{% endhighlight %}
+<br>
+  <br>
+  So they defined the <span style="font-family: courier new;">to_proc</span> method on symbol and that means the new code will be called when we write <span style="font-family: courier new;">&amp;:name</span> because it magically gets transformed into <span style="font-family: courier new;">:name.to_proc</span>. I learned something but still needed to learn more to understand how it all works.<br>
+  <br>
+  Why does the <span style="font-family: courier new;">&amp;</span> cause Ruby to call <span style="font-family: courier new;">to_proc</span>? I knew that <span style="font-family: courier new;">&amp;</span> in the last parameter declaration will pass a provided block as a parameter but this seems to be doing the reverse. Calling a method as an argument but having it interpreted as a block. I tried a couple of experiments in irb<br>
+  <br>
+  {% highlight ruby %}
+def was_block_given?
+  block_given?
+end
+
+# As expected
+was_block_given? {}
+=>  true 
+# Passing a proc is not the same as having a block
+was_block_given? Proc.new{}
+ArgumentError: wrong number of arguments (1 for 0)
+  from (irb):195:in `was_block_given?'
+  from (irb):195
+  
+# Prefixing the proc with an &amp; makes it like a block
+was_block_given? &amp;Proc.new{}
+=> true
+{% endhighlight %}
+
+  <br>
+  It was not all as I expected but some reading through the <a href="http://www.pragprog.com/titles/ruby/programming-ruby">PickAxe book</a> led me to a better understanding. I found this paragraph in the Calling A Method section (page 115 in my copy)<br>
+  <br>
+  <blockquote>
+    If the last argument to a method is preceded by an ampersand, Ruby assumes that it is a Proc object.<br>
+    It removes it from the parameter list, converts the Proc object into a block, and associates it with the method.<br>
+  </blockquote><br>
+  <br>
+  Ok so now I know why when Ruby sees <span style="font-family: courier new;">User.all.collect(&amp;:name)</span> it invokes the <span style="font-family: courier new;">collect</span> method with <span style="font-family: courier new;">name.to_proc</span> as a block. Next, it was time to figure out why the code Rails put in the to_proc method worked. I took a look at the <a href="http://github.com/evanphx/rubinius/blob/83ab3fd8b6645ac7389e97b5a1969e5eb3b2b038/kernel/common/enumerable.rb">Rubinius implementation Enumerable</a><br>
+  <br>
+{% highlight ruby %}
+def collect
+  ary = []
+  if block_given?
+    each { |o| ary &lt;&lt; yield(o) }
+  else
+    each { |o| ary &lt;&lt; o }
+  end
+  ary
+end
+{% endhighlight %}
+  <br>
+  Again I decided to experiment with irb to see what each part of the to_proc implementation was doing. First I redefined the Symbol to_proc again with a puts so I could confirm what was going on.<br>
+  <br>
+{% highlight ruby %}
+class Symbol
+  # Turns the symbol into a simple proc, which is especially useful for enumerations. Examples:
+  #
+  #   # The same as people.collect { |p| p.name }
+  #   people.collect(&amp;:name)
+  #
+  #   # The same as people.select { |p| p.manager? }.collect { |p| p.salary }
+  #   people.select(&:manager?).collect(&:salary)
+  def to_proc
+    Proc.new do |*args| 
+      puts "to_proc args: #{args.inspect}"
+      args_shift = args.shift
+      puts "to_proc: #{args_shift.inspect}.__send__(#{self.inspect}, *#{args.inspect})"
+      result = args_shift.__send__(self, *args) 
+      puts "to_proc result: #{result.inspect}"
+      result
+    end
+  end
+end
+
+# Make the call and see what happens
+[1].collect(&:to_s)
+# to_proc args: [1]
+# to_proc: 1.__send__(:to_s, *[])
+# to_proc result: "1"
+# => ["1"]
+{% endhighlight %}
+  <br>
+  Its brute force but tells us everything we need to know. As expected <span style="font-family: courier new;">collect</span> yields to our proc/block with the element in a variable length argument <span style="font-family: courier new;">[1]</span>, it extracts the <span style="font-family: courier new;">1</span> and sends it the <span style="font-family: courier new;">to_s</span> method with no arguments returning the string <span style="font-family: courier new;">"1"</span>. At this point I think I understand how it all works and decide to confirm by running a few more (more complicated) tests in irb<br>
+  <br>
+
+  <br>
+  It all works as expected and I decide I know as much as I need to about this and call it a day.<br>
+  <br>
+  So why did I bother figuring all this out and then writing it up? Mostly because I didn't know how it worked and thought there was some 'magic' going on. I could have continued using this feature without understanding how it worked but now that I understand how it works if some need ever arises for me to do some similar magic I know how to go about it. As for writing it up I hope someone else may read this and find it useful but by I increased my own understanding through the act of writing.
+  <div class="blogger-post-footer">
+    <img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-8845862891270009488?l=www.alexrothenberg.com' alt=''>
+  </div>
+</div>
