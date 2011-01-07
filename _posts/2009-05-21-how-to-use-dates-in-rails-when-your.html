@@ -1,0 +1,186 @@
+--- 
+name: how-to-use-dates-in-rails-when-your
+layout: post
+title: How to use dates in Rails when your database stores a string
+time: 2009-05-21 16:55:00 -04:00
+---
+When working with Rails there's a lot of magic that happens behind the scenes to make it easy to do complex things.  Most of the time you don't need to know how that "magic" works but there are times when things don't work as expected and its helpful to dig in and understand what Rails is doing under the covers so you can change how it works.  Did I just say "change how Rails works"?!?  I did!  Rails is opinionated software that seeks to lead you down the golden path but there are legitimate times when you have to veer off that path and Rails lets you do so.  I find this most often happens to me when I'm dealing with an existing legacy database which is not setup as Rails would like.
+<br />
+<br />Today I'm going to go through an example that happened to me recently when I had an existing database that stored some dates in a text column but I needed to treat them as dates in my UI.  I couldn't change the type of that column as there was another legacy application that expected it to be text.
+<br />
+<br /><span style="font-size:130%;font-weight: bold;">Using Dates the Rails Way</span>
+<br />
+<br />First let's look at how easy it is to work with dates when you can follow the Rails Way.  Let's create a new project and add a scaffolded Person object with a date attribute called birthday.
+<br /><pre>
+<br />rails date_select_example
+<br />cd date_select_example
+<br />script/generate scaffold person name:string birthday:date
+<br />rake db:migrate
+<br /></pre>
+<br />
+<br />Now if we hit the site and try to create a new person we see a screen like this
+<br />
+<br /><a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://1.bp.blogspot.com/_36rptmL_RFc/ShbLyDIggQI/AAAAAAAADRI/M5mxXuL8rfw/s1600-h/new_person.png"><img style="cursor:pointer; cursor:hand;width: 241px; height: 223px;" src="http://1.bp.blogspot.com/_36rptmL_RFc/ShbLyDIggQI/AAAAAAAADRI/M5mxXuL8rfw/s320/new_person.png" border="0" alt=""id="BLOGGER_PHOTO_ID_5338678468989190402" /></a>
+<br />
+<br />And when you click "Create"
+<br />
+<br /><a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://4.bp.blogspot.com/_36rptmL_RFc/ShbeAUi2a1I/AAAAAAAADRk/GYT6EpIyQts/s1600-h/person_created_successfully.png"><img style="cursor:pointer; cursor:hand;width: 234px; height: 139px;" src="http://4.bp.blogspot.com/_36rptmL_RFc/ShbeAUi2a1I/AAAAAAAADRk/GYT6EpIyQts/s320/person_created_successfully.png" border="0" alt=""id="BLOGGER_PHOTO_ID_5338698505390549842" /></a>
+<br />
+<br />Exactly what you want with almost no code in the view and none in the model.  I did make a minor edit to the view so we would get 1960 in the year select by adding <span style="font-family: courier new;">:start_year=>1900</span> (a full documentation of <a href="http://api.rubyonrails.org/classes/ActionView/Helpers/DateHelper.html#M001666">date_select options</a> are available here)
+<br />
+<br /><pre>
+<br />#app/views/people/new.html.erb
+<br />&lt;h1>New person</h1>
+<br />&lt;% form_for(@person) do |f| %>
+<br />  &lt;%= f.error_messages %>
+<br />  &lt;p>
+<br />    &lt;%= f.label :name %>&lt;br />
+<br />    &lt;%= f.text_field :name %>
+<br />  &lt;/p>
+<br />  &lt;p>
+<br />    &lt;%= f.label :birthday %>&lt;br />
+<br />    &lt;%= f.date_select :birthday, :start_year=>1900 %>
+<br />  &lt;/p>
+<br />  &lt;p>
+<br />    &lt;%= f.submit 'Create' %>
+<br />  &lt;/p>
+<br />&lt;% end %>
+<br />
+<br />&lt;%= link_to 'Back', people_path %>
+<br /></pre>
+<br />
+<br />and 
+<br /><pre>
+<br />#app/models/person.rb
+<br />class Person < ActiveRecord::Base
+<br />end
+<br /></pre>
+<br />
+<br /><span style="font-size:130%;font-weight: bold;">Errors when storing as text in the database</span>
+<br />
+<br />Now what happens when you run into a case where the date is stored as a string in the database.  Let's say we have an "anniversary" attribute stored as a string that we want to treat the same way as we did birthday.  We create the migration.
+<br /><pre>
+<br />script/generate migration AddAnniversaryToPerson anniversary:string
+<br />rake db:migrate
+<br /></pre>
+<br />
+<br />Then add the anniversary to our view.
+<br /><pre>
+<br />#app/views/people/edit.html.erb
+<br />&lt;h1>Editing person</h1>
+<br />&lt;% form_for(@person) do |f| %>
+<br />  &lt;%= f.error_messages %>
+<br />  &lt;p>
+<br />    &lt;%= f.label :name %>&lt;br />
+<br />    &lt;%= f.text_field :name %>
+<br />  &lt;/p>
+<br />  &lt;p>
+<br />    &lt;%= f.label :birthday %>&lt;br />
+<br />    &lt;%= f.date_select :birthday, :start_year=>1900  %>
+<br />  &lt;/p>
+<br />  &lt;p>
+<br />    &lt;%= f.label :anniversary %>&lt;br />
+<br />    &lt;%= f.date_select :anniversary, :start_year=>1900  %>
+<br />  &lt;/p>
+<br />  &lt;p>
+<br />    &lt;%= f.submit 'Update' %>
+<br />  &lt;/p>
+<br />&lt;% end %>
+<br />
+<br />&lt;%= link_to 'Show', @person %> |
+<br />&lt;%= link_to 'Back', people_path %>
+<br /></pre>
+<br />
+<br /><a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://1.bp.blogspot.com/_36rptmL_RFc/Shbhd6Rdh6I/AAAAAAAADRs/KU4XDoM_ICY/s1600-h/edit_person.png"><img style="cursor:pointer; cursor:hand;width: 236px; height: 277px;" src="http://1.bp.blogspot.com/_36rptmL_RFc/Shbhd6Rdh6I/AAAAAAAADRs/KU4XDoM_ICY/s320/edit_person.png" border="0" alt=""id="BLOGGER_PHOTO_ID_5338702312269252514" /></a>
+<br />
+<br />It looks like we're done so we click "Update" and .. Oops.  It doesn't work!  We get the error <span style="font-family: courier new;">1 error(s) on assignment of multiparameter attributes</span>.  Now we need to figure out what multiparameter attributes are and whey they're not working for us.  
+<br />
+<br /><pre>
+<br />ActiveRecord::MultiparameterAssignmentErrors in PeopleController#update
+<br />
+<br />1 error(s) on assignment of multiparameter attributes
+<br />RAILS_ROOT: /Users/alexrothenberg/date_select_example
+<br />
+<br />Application Trace | Framework Trace | Full Trace
+<br />/Library/Ruby/Gems/1.8/gems/activerecord-2.3.2/lib/<a href="http://github.com/rails/rails/blob/dc88847e5ce392eed210b97525c14fca55852867/activerecord/lib/active_record/base.rb#L3034-3063">active_record/base.rb:3061</a>:in `execute_callstack_for_multiparameter_attributes'
+<br />/Library/Ruby/Gems/1.8/gems/activerecord-2.3.2/lib/<a href="http://github.com/rails/rails/blob/dc88847e5ce392eed210b97525c14fca55852867/activerecord/lib/active_record/base.rb#L3014-3024">active_record/base.rb:3022</a>:in `assign_multiparameter_attributes'
+<br />/Library/Ruby/Gems/1.8/gems/activerecord-2.3.2/lib/<a href="http://github.com/rails/rails/blob/dc88847e5ce392eed210b97525c14fca55852867/activerecord/lib/active_record/base.rb#L2733-2750">active_record/base.rb:2749</a>:in `attributes='
+<br />/Library/Ruby/Gems/1.8/gems/activerecord-2.3.2/lib/<a href="http://github.com/rails/rails/blob/dc88847e5ce392eed210b97525c14fca55852867/activerecord/lib/active_record/base.rb#L2626-2629">active_record/base.rb</a>:2627:in `update_attributes'
+<br />/Users/alexrothenberg/date_select_example/app/controllers/<a href="http://github.com/alexrothenberg/date_select_example/blob/master/app/controllers/people_controller.rb#L59-72">people_controller.rb:63</a>:in `update'
+<br />...more stack trace...
+<br />
+<br />Request
+<br />
+<br />Parameters:
+<br />
+<br />{"commit"=>"Update",
+<br /> "_method"=>"put",
+<br /> "authenticity_token"=>"qezkVq+MNzFuXxFBJ/GaSoh2BNdxM6oF3H7JP5beFFE=",
+<br /> "id"=>"1",
+<br /> "person"=>{"name"=>"Barack Obama",
+<br /> "birthday(2i)"=>"8",
+<br /> "birthday(3i)"=>"4",
+<br /> "anniversary(1i)"=>"2009",
+<br /> "anniversary(2i)"=>"5",
+<br /> "anniversary(3i)"=>"22",
+<br /> "birthday(1i)"=>"1960"}}
+<br /></pre>
+<br />
+<br />What happened?  There are two keys to figuring out what's going on
+<br /><ol>
+<br /><li>The date_select helper actually sends 3 http parameters to our application <span style="font-family: courier new;">anniversary(1i)</span>, <span style="font-family: courier new;">anniversary(2i)</span> and <span style="font-family: courier new;">anniversary(3i)</span>.  ActiveRecord must combine those into a single Date before updating the row in the database.  
+<br /><li>Looking at assign_multiparameter_attributes in active_record/base.rb we see this this comment that talks about combining 3 http parameters into a date type <em>by calling new on the column type</em>
+<br />  <blockquote>Instantiates objects for all attribute classes that <b>needs more than one constructor parameter</b>. This is done by calling new on the column type or aggregation type (through composed_of) object with these parameters.
+<br />So having the pairs written_on(1) = "2004", written_on(2) = "6", written_on(3) = "24", will instantiate written_on (a date type) with Date.new("2004", "6", "24"). You can also specify a typecast character in the parentheses to have the parameters typecasted before they're used in the constructor. Use i for Fixnum, f for Float, s for String, and a for Array. If all the values for a given attribute are empty, the attribute will be set to nil.</blockquote>
+<br /></ol>
+<br />
+<br />Now we know we're close to the right place and can check the column's return type using script/console
+<br />
+<br /><pre>
+<br />$ script/console
+<br />Loading development environment (Rails 2.3.2)
+<br />>> Person.columns_hash['birthday']
+<br />=> #<ActiveRecord::ConnectionAdapters::SQLiteColumn:0x24c6bdc @default=nil, @type=:date, @null=true, @name="birthday", @scale=nil, @sql_type="date", @precision=nil, @primary=false, @limit=nil>
+<br />>> Person.columns_hash['birthday'].klass<b>
+<br />=> Date</b>
+<br />>> Person.columns_hash['anniversary']
+<br />=> #<ActiveRecord::ConnectionAdapters::SQLiteColumn:0x24c6984 @default=nil, @type=:string, @null=true, @name="anniversary", @scale=nil, @sql_type="varchar(255)", @precision=nil, @primary=false, @limit=255>
+<br />>> Person.columns_hash['anniversary'].klass<b>
+<br />=> String</b>
+<br /></pre>
+<br />
+<br />This makes sense.  ActiveRecord is treating the anniversary column as a string because that's what it is in the database so is not combining the 3 multiparameter attributes into a Date.  What we need to do is override the default ActiveRecord logic and tell it to treat this column as a date.  We can write a failing spec
+<br />
+<br /><pre>
+<br />require File.dirname(__FILE__) + '/../spec_helper'
+<br />
+<br />describe Person do
+<br />  it "should treat anniversary as a Date column" do
+<br />    Person.columns_hash['anniversary'].klass.should == Date
+<br />  end
+<br />end
+<br />
+<br /># 'Person should treat anniversary as a Date column' FAILED
+<br /># expected: Date,
+<br />#      got: String (using ==)
+<br /></pre>
+<br />
+<br />Then take advantage of a trick of Ruby that allows you to extend an object without affecting other instances of its class (see <a href="http://whytheluckystiff.net/ruby/pickaxe/html/classes.html#UB">PickAxe book's explanation</a> of this technique).  If we lookup the <a href="http://github.com/rails/rails/blob/18eb80ccc7e932f9a6c00462ceaeea648631b120/activerecord/lib/active_record/connection_adapters/abstract/schema_definitions.rb#L51-64">definition of klass for a column</a> It is actually very simple to implement our fix with the 5 lines below.
+<br />
+<br /><pre>
+<br />class Person < ActiveRecord::Base
+<br />
+<br />  class << columns_hash['anniversary']
+<br />    def type
+<br />      :date
+<br />    end
+<br />  end
+<br />end
+<br /></pre>
+<br />
+<br />Now our tests pass and when we go back to our site and click the Update button and it works.
+<br />
+<br /><a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://2.bp.blogspot.com/_36rptmL_RFc/ShcBLPag4KI/AAAAAAAADSE/neXvP4YCZJE/s1600-h/person_saved.png"><img style="cursor:pointer; cursor:hand;width: 231px; height: 166px;" src="http://2.bp.blogspot.com/_36rptmL_RFc/ShcBLPag4KI/AAAAAAAADSE/neXvP4YCZJE/s320/person_saved.png" border="0" alt=""id="BLOGGER_PHOTO_ID_5338737175898939554" /></a>
+<br />
+<br />
+<br /><div class="blogger-post-footer"><img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-8072366036639778399?l=www.alexrothenberg.com' alt='' /></div>

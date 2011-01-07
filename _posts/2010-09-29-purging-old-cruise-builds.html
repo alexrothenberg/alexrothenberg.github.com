@@ -1,0 +1,7 @@
+--- 
+name: purging-old-cruise-builds
+layout: post
+title: Purging old cruise builds
+time: 2010-09-29 16:23:00 -04:00
+---
+Continuous Integration is such an important idea and I love <a href="http://cruisecontrolrb.thoughtworks.com/">CruiseControl.rb</a> as its so easy to use.  However one thing that drives me crazy is that it keeps all builds <span style="font-style:italic;">forever</span>.  Over the past few years we run out of disk space every few months causing all our builds to start failing and some tedious manual work to delete some directories.  <br /><br />Today I decided to do something about it and wrote a script to remove all but the most recent builds.  After all why do I want an old build lying around as that's what Git of Subversion is for!<br /><br />If you want to give it a try you can download the script from <a href="http://github.com/alexrothenberg/purge_old_cruise_builds">http://github.com/alexrothenberg/purge_old_cruise_builds</a><br /><br />This seems to be working for me and I'd love to hear if I'm making some assumptions you need to change to adapt it to your uses.<div class="blogger-post-footer"><img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-2474421813173225023?l=www.alexrothenberg.com' alt='' /></div>
