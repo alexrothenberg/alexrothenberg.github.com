@@ -4,4 +4,63 @@ layout: post
 title: Testing with RSpec stories
 time: 2008-10-08 14:13:00.001000 -04:00
 ---
-I recently completed a project where we used RSpec stories for our integration testing and wanted to share some of my experiences.  Overall RSpec Stories are an incredibly powerful tool and have allowed us to take a huge step towards business analysts writing functional specifications (in the form of plain text stories) then allowing the developers to make them pass. Today I'd like to share how we setup our stories and some of the decisions we made along the way.<br /><br />The first goal was to run the stories from rake so we created a rake task in <span style="font-family:courier new;">lib/tasks/stories.rake</span> to run the stories and fail if any of them fail - this was useful when running this from our cruise server.<br /><pre><br />  task :all do<br />    args = ENV['story_prefix'] || ''<br />    stories_passed = system 'ruby', File.join(RAILS_ROOT, "stories", "run_with_all_steps.rb"), args<br />    raise('story failed') unless stories_passed<br />  end<br /></pre><br />You can invoke this task as <span style="font-family:courier new;">rake stories:all</span> or <span style="font-family:courier new;">rake stories:all story_prefix=user_</span> and the second variant allow you to run just one (or a subset) of the stories which turned out to be useful as they take a long time to run.   Now we'll move onto  <span style="font-family:courier new;">stories/run_with_all_steps.rb</span> which is what actually runs the stories.<br /><br />First some setup of the environment since we're invoked from the command line<br /><pre><br />  file_pattern = ARGV[0] || "*"<br />  ENV["RAILS_ENV"] = "test"<br />  require File.expand_path(File.dirname(__FILE__) + "/../config/environment")<br />  require 'spec/rails/story_adapter'<br /></pre><br />Then two helper functions that load all stories in a directory or use the story_pattern passed in.  This is something I haven't seen other people do with the RSpec story framework but seemed natural to me as I didn't want to have to maintain a list of stories to run and possibly (or probably) forget to add new ones.  Stories also have a concept of steps that go along with stories but I didn't want to have to to manually associate steps with stories so decided to load them all.  There were some clashes with different step files using the same phrase to define their steps but when that happened we just changed the phrasing of one or the other.  The only trick in here is the sort on the step_files which was required because windows and the mac and linux loaded the files in a different order causing inconsistency across machines.<br /><pre><br />  def all_local_stories(story_pattern = "")<br />    story_path = "#{File.dirname(__FILE__)}/stories"<br />    Dir[File.expand_path("#{story_path}/**/#{story_pattern}*.story")]<br />  end<br /><br />  def all_steps_for_local_stories<br />    steps_path = "#{File.dirname(__FILE__)}/steps"<br />    step_files = Dir[File.expand_path("#{steps_path}/*.rb")].sort<br />    step_files.collect do |file|<br />      require file<br />      file.match(/(\w+)\.rb\Z/).captures[0].underscore.to_sym<br />    end<br />  end<br /></pre><br />Lastly we invoke the rspec story runner.  What's tricky here is that the story runner doesn't run here but registers itself using <a href="http://www.ruby-doc.org/core/classes/Kernel.html#M005958">Kernel.at_exit</a> (which I'd never seen before)<br /><pre><br />  stories = all_local_stories(file_pattern)<br />  stories.each do |file|<br />    with_steps_for(*all_steps_for_local_stories) do<br />      run file, :type => RailsStory<br />    end<br />  end<br /></pre><br />So up to here we can invoke our stories using rake ... but what are stories and how do they work?  Stories are just text files written with the template<br /><pre><br />Story: Manage Users<br />As an Administrator<br />I want to manage the users who have access to my application<br />So that private stuff isn't seen by the wrong people<br /><br />  Scenario: Revoke access for a user<br />  Given Alex is a registered user<br />  When I delete the user Alex<br />  Then Alex should not be able to access the sensitive content<br /></pre><br />This is pretty cool ... so how does it work?  This is where the steps come in.  We define a steps file to match each of the Given/When/Then clauses in our story and define what to do for each one.<br /><pre><br />require File.dirname(__FILE__) + '/../../../spec/spec_helper'<br /><br />steps_for(:user_management) do<br />  Given('$user_name is a registered user') do |user_name|<br />    @users ||= []<br />    @users << name =""> user_name})<br />  end<br /><br />  When('I delete the user $user_name') do |user_name|<br />    this_user = @users.detect {|a_user| a_user.name == user_name}<br />    this_user.should_not be_nil<br />    this_user.destroy<br />  end<br /><br />  Then('$user_name should not be able to access the site') do |user_name|<br />    get("/login?username=#{user_name}")<br />    response.response_code.should == 401<br />  end<br />end<br /></pre><br />As the rspec story runner parses the story file it looks for a step that matches invokes its block passing a parameter for each $-starting variable in the clause.  The way I've written what's above we try to maintain some consistency between the variables referred to in the different clauses.  If you refer to the user_name as 'Alex' in the Given clause we store that user away in the <span style="font-family:courier new;">@users</span> array and load it from there later on when we want to refer to the same user in the When clause.<br /><br />We've had pretty good success working with stories in this way and as we move forward are going to continue to experiment with<br /><ul><li>Having our business analysts write most of the story files and the developers write the steps.<br /></li><li>Thinking of ways to keep the steps files DRY</li><li>Working with WATIR or Selenium to create stories that drive the browser<br /></li></ul>
+
+<p>
+  I recently completed a project where we used RSpec stories for our integration testing and wanted to share some of my experiences. Overall RSpec Stories are an incredibly powerful tool and have allowed us to take a huge step towards business analysts writing functional specifications (in the form of plain text stories) then allowing the developers to make them pass. Today I'd like to share how we setup our stories and some of the decisions we made along the way.<br>
+  <br>
+  The first goal was to run the stories from rake so we created a rake task in <span style="font-family:courier new;">lib/tasks/stories.rake</span> to run the stories and fail if any of them fail - this was useful when running this from our cruise server.<br>
+</p>
+<pre>
+<br>  task :all do<br>    args = ENV['story_prefix'] || ''<br>    stories_passed = system 'ruby', File.join(RAILS_ROOT, "stories", "run_with_all_steps.rb"), args<br>    raise('story failed') unless stories_passed<br>  end<br>
+</pre>
+<p>
+  <br>
+  You can invoke this task as <span style="font-family:courier new;">rake stories:all</span> or <span style="font-family:courier new;">rake stories:all story_prefix=user_</span> and the second variant allow you to run just one (or a subset) of the stories which turned out to be useful as they take a long time to run. Now we'll move onto <span style="font-family:courier new;">stories/run_with_all_steps.rb</span> which is what actually runs the stories.<br>
+  <br>
+  First some setup of the environment since we're invoked from the command line<br>
+</p>
+<pre>
+<br>  file_pattern = ARGV[0] || "*"<br>  ENV["RAILS_ENV"] = "test"<br>  require File.expand_path(File.dirname(__FILE__) + "/../config/environment")<br>  require 'spec/rails/story_adapter'<br>
+</pre>
+<p>
+  <br>
+  Then two helper functions that load all stories in a directory or use the story_pattern passed in. This is something I haven't seen other people do with the RSpec story framework but seemed natural to me as I didn't want to have to maintain a list of stories to run and possibly (or probably) forget to add new ones. Stories also have a concept of steps that go along with stories but I didn't want to have to to manually associate steps with stories so decided to load them all. There were some clashes with different step files using the same phrase to define their steps but when that happened we just changed the phrasing of one or the other. The only trick in here is the sort on the step_files which was required because windows and the mac and linux loaded the files in a different order causing inconsistency across machines.<br>
+</p>
+<pre>
+<br>  def all_local_stories(story_pattern = "")<br>    story_path = "#{File.dirname(__FILE__)}/stories"<br>    Dir[File.expand_path("#{story_path}/**/#{story_pattern}*.story")]<br>  end<br><br>  def all_steps_for_local_stories<br>    steps_path = "#{File.dirname(__FILE__)}/steps"<br>    step_files = Dir[File.expand_path("#{steps_path}/*.rb")].sort<br>    step_files.collect do |file|<br>      require file<br>      file.match(/(\w+)\.rb\Z/).captures[0].underscore.to_sym<br>    end<br>  end<br>
+</pre>
+<p>
+  <br>
+  Lastly we invoke the rspec story runner. What's tricky here is that the story runner doesn't run here but registers itself using <a href="http://www.ruby-doc.org/core/classes/Kernel.html#M005958">Kernel.at_exit</a> (which I'd never seen before)<br>
+</p>
+<pre>
+<br>  stories = all_local_stories(file_pattern)<br>  stories.each do |file|<br>    with_steps_for(*all_steps_for_local_stories) do<br>      run file, :type =&gt; RailsStory<br>    end<br>  end<br>
+</pre>
+<p>
+  <br>
+  So up to here we can invoke our stories using rake ... but what are stories and how do they work? Stories are just text files written with the template<br>
+</p>
+<pre>
+<br>Story: Manage Users<br>As an Administrator<br>I want to manage the users who have access to my application<br>So that private stuff isn't seen by the wrong people<br><br>  Scenario: Revoke access for a user<br>  Given Alex is a registered user<br>  When I delete the user Alex<br>  Then Alex should not be able to access the sensitive content<br>
+</pre>
+<p>
+  <br>
+  This is pretty cool ... so how does it work? This is where the steps come in. We define a steps file to match each of the Given/When/Then clauses in our story and define what to do for each one.<br>
+</p>
+<pre>
+<br>require File.dirname(__FILE__) + '/../../../spec/spec_helper'<br><br>steps_for(:user_management) do<br>  Given('$user_name is a registered user') do |user_name|<br>    @users ||= []<br>    @users &lt;&lt; name =""&gt; user_name})<br>  end<br><br>  When('I delete the user $user_name') do |user_name|<br>    this_user = @users.detect {|a_user| a_user.name == user_name}<br>    this_user.should_not be_nil<br>    this_user.destroy<br>  end<br><br>  Then('$user_name should not be able to access the site') do |user_name|<br>    get("/login?username=#{user_name}")<br>    response.response_code.should == 401<br>  end<br>end<br>
+</pre>
+<p>
+  <br>
+  As the rspec story runner parses the story file it looks for a step that matches invokes its block passing a parameter for each $-starting variable in the clause. The way I've written what's above we try to maintain some consistency between the variables referred to in the different clauses. If you refer to the user_name as 'Alex' in the Given clause we store that user away in the <span style="font-family:courier new;">@users</span> array and load it from there later on when we want to refer to the same user in the When clause.<br>
+  <br>
+  We've had pretty good success working with stories in this way and as we move forward are going to continue to experiment with<br>
+</p>
+<ul>
+  <li>Having our business analysts write most of the story files and the developers write the steps.<br>
+  </li>
+  <li>Thinking of ways to keep the steps files DRY
+  </li>
+  <li>Working with WATIR or Selenium to create stories that drive the browser<br>
+  </li>
+</ul>

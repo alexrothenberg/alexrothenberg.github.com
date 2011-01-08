@@ -4,4 +4,59 @@ layout: post
 title: Some things are inherently complicated and slow ... put them in the right place
 time: 2008-07-04 14:36:00.016000 -04:00
 ---
-One of the first lessons I learned when I started working as a software developer professionally was that you don't always have to make an action fast, sometimes its just enough to make it <span style="font-style: italic;">seem</span> fast to a user.  This lesson was learned in the 1990s in the context of a Windows application.  What we did was quickly draw part of the screen (or a splash image) immediately then do the time consuming work in the background so that by the time the user was ready to interact with the application we'd be ready for them.<br /><br />Recently I was reminded of this lesson on a website I'm working on.  We have a complicated report to show on the user's homepage.  My first implementation involved generating the report in real-time when the page is loaded but this was very slooooow.  Some profiling and analysis let us make it somewhat faster but not fast enough.<br /><br />I was stumped until I remembered my old lesson.  If it wasn't possible to generate the report quickly, perhaps we could do it sometime when the user wouldn't mind.<br /><br />Luckily this is a Rails application and ActiveRecord Callbacks make it easy to do this.  I could pregenerate the report and update a portion of it each time something is saved.  Users expect a save to take some time and don't do it that often.  Then generating the homepage becomes just a simple matter of displaying the existing rows.<br /><br />First I setup my models to call into the report generator every time they change<br /><pre><span style="font-family:courier new;"><br />class Person < ActiveRecord::Base<br />  after_destroy {|person| ReportGenerator::Person.destroyed(person)}<br />  after_create  {|person| ReportGenerator::Person.created(person)  }<br />  after_update  {|person| ReportGenerator::Person.updated(person)  }<br />end<br /></span></pre><br /><br />Then I implement the complicated (and slow) logic to pre-compute the rows in the report in a library class<br /><br /><pre><span style="font-family:courier new;"><br />module ReportGenerator<br />  class Executive<br />    def destroyed(executive)<br />      #figure out which rows to delete from the report and persist with the Report model<br />    end<br />    def created(executive)<br />      #figure out which rows to add to the report and persist with the Report model<br />    end<br />    def updated(executive)<br />      #figure out which rows to update in the report and persist with the Report model<br />    end<br />  end<br />  #Similar classes corresponding to the other models that trigger recalculations would go here<br />end<br /></span></pre><br /><br />Finally I can show the report on the homepage with some boring (and fast) Rails code<br /><br />Model:<br /><pre><span style="font-family:courier new;"><br />class Report < ActiveRecord::Base<br />end<br /></span></pre><br /><br />Controller:<br /><pre><span style="font-family:courier new;"><br />class ReportsController < ApplicationController<br /> @report =" ReportRows.find_by_user(current_user)"><br /></span></pre><br /><br />and the View:<br /><br /><pre><span style="font-family:courier new;"><br /><% for row in @report %><br />  Display the row<br /><% end %><br /></span></pre><br /><br />The interesting insight for me is that when optimizing there are sometimes hard problems that can't be solved.  Its important not to lose sight of the goal you're aiming at (a satisfying user experience) and that sometimes involves spending the computational time somewhere where the user won't mind.
+
+<p>
+  One of the first lessons I learned when I started working as a software developer professionally was that you don't always have to make an action fast, sometimes its just enough to make it <span style="font-style: italic;">seem</span> fast to a user. This lesson was learned in the 1990s in the context of a Windows application. What we did was quickly draw part of the screen (or a splash image) immediately then do the time consuming work in the background so that by the time the user was ready to interact with the application we'd be ready for them.<br>
+  <br>
+  Recently I was reminded of this lesson on a website I'm working on. We have a complicated report to show on the user's homepage. My first implementation involved generating the report in real-time when the page is loaded but this was very slooooow. Some profiling and analysis let us make it somewhat faster but not fast enough.<br>
+  <br>
+  I was stumped until I remembered my old lesson. If it wasn't possible to generate the report quickly, perhaps we could do it sometime when the user wouldn't mind.<br>
+  <br>
+  Luckily this is a Rails application and ActiveRecord Callbacks make it easy to do this. I could pregenerate the report and update a portion of it each time something is saved. Users expect a save to take some time and don't do it that often. Then generating the homepage becomes just a simple matter of displaying the existing rows.<br>
+  <br>
+  First I setup my models to call into the report generator every time they change<br>
+</p>
+<pre>
+<span style="font-family:courier new;"><br>class Person &lt; ActiveRecord::Base<br>  after_destroy {|person| ReportGenerator::Person.destroyed(person)}<br>  after_create  {|person| ReportGenerator::Person.created(person)  }<br>  after_update  {|person| ReportGenerator::Person.updated(person)  }<br>end<br></span>
+</pre>
+<p>
+  <br>
+  <br>
+  Then I implement the complicated (and slow) logic to pre-compute the rows in the report in a library class<br>
+  <br>
+</p>
+<pre>
+<span style="font-family:courier new;"><br>module ReportGenerator<br>  class Executive<br>    def destroyed(executive)<br>      #figure out which rows to delete from the report and persist with the Report model<br>    end<br>    def created(executive)<br>      #figure out which rows to add to the report and persist with the Report model<br>    end<br>    def updated(executive)<br>      #figure out which rows to update in the report and persist with the Report model<br>    end<br>  end<br>  #Similar classes corresponding to the other models that trigger recalculations would go here<br>end<br></span>
+</pre>
+<p>
+  <br>
+  <br>
+  Finally I can show the report on the homepage with some boring (and fast) Rails code<br>
+  <br>
+  Model:<br>
+</p>
+<pre>
+<span style="font-family:courier new;"><br>class Report &lt; ActiveRecord::Base<br>end<br></span>
+</pre>
+<p>
+  <br>
+  <br>
+  Controller:<br>
+</p>
+<pre>
+<span style="font-family:courier new;"><br>class ReportsController &lt; ApplicationController<br> @report =" ReportRows.find_by_user(current_user)"&gt;<br></span>
+</pre>
+<p>
+  <br>
+  <br>
+  and the View:<br>
+  <br>
+</p>
+<pre>
+<span style="font-family:courier new;"><br><% for row in @report %><br>  Display the row<br><% end %><br></span>
+</pre>
+<p>
+  <br>
+  <br>
+  The interesting insight for me is that when optimizing there are sometimes hard problems that can't be solved. Its important not to lose sight of the goal you're aiming at (a satisfying user experience) and that sometimes involves spending the computational time somewhere where the user won't mind.
+</p>

@@ -4,4 +4,22 @@ layout: post
 title: Using Ruby for shell scripting
 time: 2008-10-09 08:26:00.003000 -04:00
 ---
-Someone came to me the other day with a problem.  He had downloaded a directory containing a large number of files with spaces in their filenames and needed to get rid of the spaces so he could load them into the tool he was using.  He asked me if I knew of a mass rename tool.  I didn't know of such a tool but thought it wouldn't be too hard to write something simple.<br /><br />First I thought of capturing the output of a find and using a text editor search-and-replace create a whole number of <span style="font-family: courier new;">mv old_file new_file_without_spaces</span> commands that could all be run.  But then I would have to work with some editor's search-and-replace syntax. <br /><br />Then I thought of writing a shell script.  I started to think about <span style="font-family: courier new;">find . -e ...</span> but realized I always get confused about the -e syntax and using sed or awk.<br /><br />Suddenly I realized I could do this with Ruby.  About 10 minutes later I had this simple 3 line script, ran it and was done.<br /><br /><pre><br />  Dir[File.expand_path("#{~/file_with_spaces}/*")].uniq.sort.each do |file|<br />    system "mv '#{file}' '#{file.gsub(' ', '_')}'"<br />  end<br /></pre><br /><br />Ruby is my new shell scripting language and I don't think I'm ever writing a bash shell script again!
+
+<p>
+  Someone came to me the other day with a problem. He had downloaded a directory containing a large number of files with spaces in their filenames and needed to get rid of the spaces so he could load them into the tool he was using. He asked me if I knew of a mass rename tool. I didn't know of such a tool but thought it wouldn't be too hard to write something simple.<br>
+  <br>
+  First I thought of capturing the output of a find and using a text editor search-and-replace create a whole number of <span style="font-family: courier new;">mv old_file new_file_without_spaces</span> commands that could all be run. But then I would have to work with some editor's search-and-replace syntax.<br>
+  <br>
+  Then I thought of writing a shell script. I started to think about <span style="font-family: courier new;">find . -e ...</span> but realized I always get confused about the -e syntax and using sed or awk.<br>
+  <br>
+  Suddenly I realized I could do this with Ruby. About 10 minutes later I had this simple 3 line script, ran it and was done.<br>
+  <br>
+</p>
+<pre>
+<br>  Dir[File.expand_path("#{~/file_with_spaces}/*")].uniq.sort.each do |file|<br>    system "mv '#{file}' '#{file.gsub(' ', '_')}'"<br>  end<br>
+</pre>
+<p>
+  <br>
+  <br>
+  Ruby is my new shell scripting language and I don't think I'm ever writing a bash shell script again!
+</p>

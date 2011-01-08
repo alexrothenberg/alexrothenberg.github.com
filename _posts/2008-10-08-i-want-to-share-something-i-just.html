@@ -4,4 +4,19 @@ layout: post
 title: Undefining a constant in a rspec test
 time: 2008-10-08 14:54:00.004000 -04:00
 ---
-I want to share something I just figured out.  I had to write some code that used a class from a plugin if it was there and but did not require the plugin.  The problem I faced was how to test this.<br /><br />My method looked like this<br /><pre>class User <br /> def lookup_additional_person_info<br />   if defined? CommonServices::Person<br />     person = CommonServices::Person.find_by_id(@person_id)<br />     @address = person.address<br />   else<br />     @address = 'not available'<br />   end<br /> end<br />end<br /><br /></pre>I knew how to define CommonServices::Person to test the positive case but what about the negative?  I found out you can undefine a class by sending its parent <span style="font-family: courier new;">:remove_constant</span><br /><br /><pre>  it 'should default additional parameters if CommonServices::Person is not defined' do<br />   defined?(CommonServices::Person).should be_nil<br />   user = User.new(:person_id=123)<br />   user.lookup_additional_person_info<br />   user.address.should == 'not available'<br /> end<br /><br /> it 'should not populate additional parameters if CommonServices::Person is not defined' do<br />   begin<br />     defined?(CommonServices::Person).should be_nil<br />     module CommonServices<br />       class Person<br />       end<br />     end<br />     CommonServices::Person.expects(:find).with(123).returns(person=mock)<br />     person.expects(:address).returns(address_from_service=mock)<br />  <br />     user = User.new(:person_id=123)<br />     user.lookup_additional_person_info<br />     user.address.should == address_from_service<br />   ensure<br />     CommonServices.send(:remove_const, :Person)<br />   end<br /> end<br /></pre>
+
+<p>
+  I want to share something I just figured out. I had to write some code that used a class from a plugin if it was there and but did not require the plugin. The problem I faced was how to test this.<br>
+  <br>
+  My method looked like this<br>
+</p>
+<pre>
+class User <br> def lookup_additional_person_info<br>   if defined? CommonServices::Person<br>     person = CommonServices::Person.find_by_id(@person_id)<br>     @address = person.address<br>   else<br>     @address = 'not available'<br>   end<br> end<br>end<br><br>
+</pre>
+<p>
+  I knew how to define CommonServices::Person to test the positive case but what about the negative? I found out you can undefine a class by sending its parent <span style="font-family: courier new;">:remove_constant</span><br>
+  <br>
+</p>
+<pre>
+  it 'should default additional parameters if CommonServices::Person is not defined' do<br>   defined?(CommonServices::Person).should be_nil<br>   user = User.new(:person_id=123)<br>   user.lookup_additional_person_info<br>   user.address.should == 'not available'<br> end<br><br> it 'should not populate additional parameters if CommonServices::Person is not defined' do<br>   begin<br>     defined?(CommonServices::Person).should be_nil<br>     module CommonServices<br>       class Person<br>       end<br>     end<br>     CommonServices::Person.expects(:find).with(123).returns(person=mock)<br>     person.expects(:address).returns(address_from_service=mock)<br>  <br>     user = User.new(:person_id=123)<br>     user.lookup_additional_person_info<br>     user.address.should == address_from_service<br>   ensure<br>     CommonServices.send(:remove_const, :Person)<br>   end<br> end<br>
+</pre>

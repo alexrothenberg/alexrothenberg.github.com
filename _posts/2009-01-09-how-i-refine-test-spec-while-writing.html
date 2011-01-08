@@ -4,4 +4,85 @@ layout: post
 title: How I refine a test spec while writing getting it to green
 time: 2009-01-09 15:10:00.002000 -05:00
 ---
-In most of the examples I've read on TDD they show the Red-Green-Refactor cycle as <br /><ol><br />  <li>Write a failing test</li><br />  <li>Write just enough code to make the test pass</li><br />  <li>Refactor</li><br />  <li>Repeat</li><br /></ol><br /><br />I absolutely do believe in this cycle and live it every day however I think there's a small detail that differs from what I do.  When I move from step 1 to step 2, I keep my test window open and will switch back and forth between the test and code windows and refining the test while writing the code that makes the test pass.  Its only as I write the code that I realize what calls I need to mock out in the test which also adds additional expectations to my test.  I'm sure this is how most people work but I've never seen it written up so I'm going to try going through an example here. <br /><br />Let's say I have a social networking application with a page showing friend requests where you can accept or reject each request.  Something like this<br /><br /><div style="background-color:#F5F6E7"><br />  Friend Requests:<br />  <form onclick='return false'><br />    <input name="approved_requests[]" type="checkbox" value="123" /> Accept request from Pat? <br />    <input name="approved_requests[]" type="checkbox" value="124" /> Accept request from Gourav? <br />  </form><br /></div><br />  <br />Now I'm ready to implement an action in the Friend Controller that receives a posted form with a list of friend requests to accept and reject.  I might first go into my <span style="font-family: courier new;">friends_controller_spec.rb</span> and write something like<br /><br /><pre><br />describe FriendController do<br />  it 'should approve one friend requests' do<br />    post :update_requests, :approved_requests => ['123']<br />    response.should be_redirect<br />    response.should redirect_to(:back)<br />    flash[:notice].should  == "Friend requests approved."<br />  end<br />end<br /></pre><br /><br />Now I have a failing test so I start implementing the code<br /><br /><pre><br />class FriendController < ApplicationController<br />  def update_requests<br />    FriendRequest.approve(params[:approve_requests])<br />    flash[:notice] = "User access changes saved."<br />    redirect_to :back<br />  end<br />end<br /></pre><br />  <br />I'm done but my test is still failing...why?  I haven't added the <span style="font-family: courier new;">approve</span> method to my <span style="font-family: courier new;">FriendRequest</span> model yet.  I could go ahead and implement that method to get this test to pass but I don't want to do that because then this test would be testing more than just one unit.  This is a unit test for the update_requests method of my FriendController and should be isolated from bugs in the rest of my application.  Time to go back to the spec and add a mock to isolate this spec from the model and impose another expectation on my spec (that the method be called with the correct argument).  <br /><br /><pre><br />describe FriendController do<br />  it 'should approve one friend requests' do<br />    FriendRequest.expects(:approve).with(['123'])<br />    request.env['HTTP_REFERER'] = "http://some.site.com"<br />  <br />    post :update_requests, :approved_requests => ['123']<br />    response.should be_redirect<br />    response.should redirect_to(:back)<br />    flash[:notice].should  == "Friend requests approved."<br />  end<br />end<br /></pre><br /><br />Now my spec passes and I can do my refactoring then go back to the beginning and write my next expectation.  <br /><br />The point of this example is that when I first wrote the spec I hadn't yet thought about how I would implement update_requests so did not yet know that I would need to mock FriendRequest.approve.  I do this all the time and typically find myself go back and forth between the code and spec many times with the spec telling me what code I need to write and the code telling me how to refine the spec.  <br /><br />One last point (and a teaser for a future post).  You have probably noticed that although my spec passes if I try to run the application it will not work because I still haven't written the FriendRequest.approve method.  In a future post I hope to discuss how to interleave integration testing into this process to ensure that the classes we're writing in isolation also integrate so that the application satisfies its business function.
+
+<p>
+  In most of the examples I've read on TDD they show the Red-Green-Refactor cycle as<br>
+</p>
+<ol>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>Write a failing test
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>Write just enough code to make the test pass
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>Refactor
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>Repeat
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+</ol>
+<p>
+  <br>
+  <br>
+  I absolutely do believe in this cycle and live it every day however I think there's a small detail that differs from what I do. When I move from step 1 to step 2, I keep my test window open and will switch back and forth between the test and code windows and refining the test while writing the code that makes the test pass. Its only as I write the code that I realize what calls I need to mock out in the test which also adds additional expectations to my test. I'm sure this is how most people work but I've never seen it written up so I'm going to try going through an example here.<br>
+  <br>
+  Let's say I have a social networking application with a page showing friend requests where you can accept or reject each request. Something like this<br>
+  <br>
+</p>
+<div style="background-color:#F5F6E7">
+  <br>
+  Friend Requests:<br>
+  <form onclick='return false'>
+    <br>
+    <input name="approved_requests[]" type="checkbox" value="123"> Accept request from Pat?<br>
+    <input name="approved_requests[]" type="checkbox" value="124"> Accept request from Gourav?<br>
+  </form><br>
+</div>
+<p>
+  <br>
+  <br>
+  Now I'm ready to implement an action in the Friend Controller that receives a posted form with a list of friend requests to accept and reject. I might first go into my <span style="font-family: courier new;">friends_controller_spec.rb</span> and write something like<br>
+  <br>
+</p>
+<pre>
+<br>describe FriendController do<br>  it 'should approve one friend requests' do<br>    post :update_requests, :approved_requests =&gt; ['123']<br>    response.should be_redirect<br>    response.should redirect_to(:back)<br>    flash[:notice].should  == "Friend requests approved."<br>  end<br>end<br>
+</pre>
+<p>
+  <br>
+  <br>
+  Now I have a failing test so I start implementing the code<br>
+  <br>
+</p>
+<pre>
+<br>class FriendController &lt; ApplicationController<br>  def update_requests<br>    FriendRequest.approve(params[:approve_requests])<br>    flash[:notice] = "User access changes saved."<br>    redirect_to :back<br>  end<br>end<br>
+</pre>
+<p>
+  <br>
+  <br>
+  I'm done but my test is still failing...why? I haven't added the <span style="font-family: courier new;">approve</span> method to my <span style="font-family: courier new;">FriendRequest</span> model yet. I could go ahead and implement that method to get this test to pass but I don't want to do that because then this test would be testing more than just one unit. This is a unit test for the update_requests method of my FriendController and should be isolated from bugs in the rest of my application. Time to go back to the spec and add a mock to isolate this spec from the model and impose another expectation on my spec (that the method be called with the correct argument).<br>
+  <br>
+</p>
+<pre>
+<br>describe FriendController do<br>  it 'should approve one friend requests' do<br>    FriendRequest.expects(:approve).with(['123'])<br>    request.env['HTTP_REFERER'] = "http://some.site.com"<br>  <br>    post :update_requests, :approved_requests =&gt; ['123']<br>    response.should be_redirect<br>    response.should redirect_to(:back)<br>    flash[:notice].should  == "Friend requests approved."<br>  end<br>end<br>
+</pre>
+<p>
+  <br>
+  <br>
+  Now my spec passes and I can do my refactoring then go back to the beginning and write my next expectation.<br>
+  <br>
+  The point of this example is that when I first wrote the spec I hadn't yet thought about how I would implement update_requests so did not yet know that I would need to mock FriendRequest.approve. I do this all the time and typically find myself go back and forth between the code and spec many times with the spec telling me what code I need to write and the code telling me how to refine the spec.<br>
+  <br>
+  One last point (and a teaser for a future post). You have probably noticed that although my spec passes if I try to run the application it will not work because I still haven't written the FriendRequest.approve method. In a future post I hope to discuss how to interleave integration testing into this process to ensure that the classes we're writing in isolation also integrate so that the application satisfies its business function.
+</p>
