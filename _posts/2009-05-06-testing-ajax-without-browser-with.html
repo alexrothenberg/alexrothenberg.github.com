@@ -4,4 +4,282 @@ layout: post
 title: Testing AJAX without a browser with Cucumber and Webrat
 time: 2009-05-06 13:43:00 -04:00
 ---
-I have lately fallen in love with using Cucumber and Webrat for my integration/acceptance testing.  <a href="http://cukes.info/">Cucumber</a> because it allows non-technical people to write or at least read the test scenarios and <a href=http://github.com/brynary/webrat/tree/master>Webrat</a> because it matches content and encourages you to write integration tests without relying on xpath to find html elements.  The way I like to use these tools is to run Rails integration tests which means its fast since I don’t need to start a mongrel or fire up a browser and can use Rails’ transactional fixtures to rollback all my database changes at the end of each test scenario.  The only downside is that you can’t test javascript.<br /><br />Today I am going to talk about how to get around this and test a form with an ajax autocomplete field.  I've built a sample application with all the code examples here and you can download it from <a href="http://github.com/alexrothenberg/testing-ajax-example">http://github.com/alexrothenberg/testing-ajax-example</a> if you like.  The application I'm building is just some simple app created with scaffolding that just has a User resource with a name and address.  I modified the /users page to not display all users but include the auto_complete typeahead to let you pick a user (imagining there may be a lot) so the page looks something like this.<br /><br /><a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://4.bp.blogspot.com/_36rptmL_RFc/SgG3eqE-W3I/AAAAAAAADOw/7p-_x0l6qLo/s1600-h/search_for_a_user_screen.png"><img style="cursor:pointer; cursor:hand;width: 320px; height: 157px;" src="http://4.bp.blogspot.com/_36rptmL_RFc/SgG3eqE-W3I/AAAAAAAADOw/7p-_x0l6qLo/s320/search_for_a_user_screen.png" border="0" alt=""id="BLOGGER_PHOTO_ID_5332745171102489458" /></a><br /><br />My first test scenario will ignore the ajax and just test the form which is super easy and can be done by writing a single feature file.<br /><br /><pre><br />#features/find_a_user.feature<br />Feature: Allow anyone to find a user and see their details<br />  In order to handle a large set of users<br />  I want search with autocomplete<br /> <br />  Scenario: View a candidate detail page without testing ajax<br />    Given "Mickey Mouse" is a user living at "123 Main Street"<br />    When I am on the homepage<br />      And I fill in "Which user" with "Mickey Mouse"<br />      And I press "Find"<br />    Then I should see "Mickey Mouse"<br />      And I should see "123 Main Street"<br /></pre><br /><br />I run it it all passes and I get<br /><br /><pre><br />$ rake features<br />(in /Users/alexrothenberg/ruby/testing-ajax-example)<br />/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby -I "/Library/Ruby/Gems/1.8/gems/cucumber-0.3.2/lib:lib" "/Library/Ruby/Gems/1.8/gems/cucumber-0.3.2/bin/cucumber" --format pretty --require features/step_definitions/user_steps.rb --require features/step_definitions/webrat_steps.rb --require features/support/env.rb --require features/support/paths.rb features/find_a_user.feature<br />Feature: Allow anyone to find a user and see their details<br />  In order to handle a large set of users <br />  I want search with autocomplete<br /><br />  Scenario: View a candidate detail page without testing ajax     # features/find_a_user.feature:5<br />    Given "Mickey Mouse" is a user living at "123 Main Street"    # features/step_definitions/user_steps.rb:1<br />    When I am on the homepage                                     # features/step_definitions/webrat_steps.rb:6<br />    And I fill in "Which user" with "Mickey Mouse"                # features/step_definitions/webrat_steps.rb:22<br />    And I press "Find"                                            # features/step_definitions/webrat_steps.rb:14<br />    Then I should see "Mickey Mouse"                              # features/step_definitions/webrat_steps.rb:93<br />    And I should see "123 Main Street"                            # features/step_definitions/webrat_steps.rb:93<br /><br />1 scenario (1 passed)<br />6 steps (6 passed)<br /></pre><br /><br />I makes use of the default webrat steps that cucumber gives you for free in features/steps/webrat_steps.rb so I don’t even have to write any code to get it to pass but I still haven’t tested any of my code that responds to the autocomplete request.  I’d like my test to verify that my routes, controller and model will all work together. So, I write another scenario and run it and this time it fails because I haven't defined the typeahead steps for the typeahead lines.<br /><br /><pre><br />&lt;first scenario omitted&gt;<br /><br />Scenario: View a candidate detail page testing (most of) the ajax # features/find_a_user.feature:13<br />    Given "Mickey Mouse" is a user living at "123 Main Street"      # features/step_definitions/user_steps.rb:1<br />    When I am on the homepage                                       # features/step_definitions/webrat_steps.rb:6<br />    And I typeahead in "Which user" with "Mickey Mouse"             # features/find_a_user.feature:16<br />    And I fill in "Which candidate" with the first typeahead result # features/find_a_user.feature:17<br />    And I press "Find"                                              # features/step_definitions/webrat_steps.rb:14<br />    Then I should see "Mickey Mouse"                                # features/step_definitions/webrat_steps.rb:93<br />    And I should see "123 Main Street"                              # features/step_definitions/webrat_steps.rb:93<br /><br />2 scenarios (1 undefined, 1 passed)<br />13 steps (3 skipped, 2 undefined, 8 passed)<br /><br />You can implement step definitions for undefined steps with these snippets:<br /><br />When /^I typeahead in "([^\"]*)" with "([^\"]*)"$/ do |arg1, arg2|<br />  pending<br />end<br /><br />When /^I fill in "([^\"]*)" with the first typeahead result$/ do |arg1|<br />  pending<br />end<br /></pre><br /><br />Now I take the hints cucumber has given me and write my autocomplete steps.  The interesting thing here is that I need to leave the response object unchanged so I can fill in the form field after running the typeahead step so I can't use the existing webrat steps as they work on a single pair of request and response objects.  So I knew I'd be creating a new class with its own request and response that could be used without affecting the one used by my other cucumber steps.  Using good outside-in development practices I deferred thinking about how to do that and first wrote my steps file to look something like this.  One interesting thing to notice here is that you can invoke a step from inside another step just by omitting the block as I do in the second step.<br /><br /><pre><br />When /^I typeahead in "(.*)" with "(.*)"$/ do |field, value|<br />  field = field_labeled field<br />  @typeahead = AutoCompleteStepHelper.new(request)<br />  @typeahead.type(field, value)<br />end<br /><br />When /^I fill in "(.*)" with the first typeahead result$/ do |field|<br />  When %Q[I fill in "#{field}" with "#{@typeahead.items.first}"]<br />end<br /></pre><br /><br />Now when run the feature again it fails telling me I haven’t yet built the AutoCompleteStepHelper.<br /><br /><pre><br />&lt;first scenario omitted&gt;<br /><br />Scenario: View a candidate detail page testing (most of) the ajax # features/find_a_user.feature:13<br />    Given "Mickey Mouse" is a user living at "123 Main Street"      # features/step_definitions/user_steps.rb:1<br />    When I am on the homepage                                       # features/step_definitions/webrat_steps.rb:6<br />    And I typeahead in "Which user" with "Mickey Mouse"             # features/step_definitions/autocomplete_steps.rb:1<br />      uninitialized constant AutoCompleteStepHelper (NameError)<br />      ./features/step_definitions/autocomplete_steps.rb:3:in `/^I typeahead in "(.*)" with "(.*)"$/'<br />      features/find_a_user.feature:16:in `And I typeahead in "Which user" with "Mickey Mouse"'<br />    And I fill in "Which candidate" with the first typeahead result # features/step_definitions/autocomplete_steps.rb:7<br />    And I press "Find"                                              # features/step_definitions/webrat_steps.rb:14<br />    Then I should see "Mickey Mouse"                                # features/step_definitions/webrat_steps.rb:93<br />    And I should see "123 Main Street"                              # features/step_definitions/webrat_steps.rb:93<br /><br />2 scenarios (1 failed, 1 passed)<br />13 steps (1 failed, 4 skipped, 8 passed)<br /></pre><br /><br />So the next step is to write the AutoCompleteStepHelper class.  This class’ job is to have its own request and response that will not affect the ones used by cucumber for the main page requests.  It turns out that I can do this by having my class extend ActionController::IntegrationTest and I can even use webrat methods in it because webrat <a href="http://github.com/brynary/webrat/blob/481bfe03c0829a7d858443ceb6a51e1587a0d931/lib/webrat/rails.rb#L100-105">adds its methods to IntegrationTest</a>.  In this example I'm calling <span style="font-family: courier new;">visit</span> and <span style="font-family: courier new;">current_dom</span> and using <a href="http://nokogiri.rubyforge.org/nokogiri/">nokogiri</a> to parse the dom.  It is a little weird that I'm subclassing IntegrationTest but this class is not a TestUnit class itself but I decided that was okay.<br /><br /><pre><br />class AutoCompleteStepsHelper < ActionController::IntegrationTest<br />  def initialize(existing_request)<br />    @controller_name = existing_request.parameters[:controller]<br />    @controller_class = "#{@controller_name.to_s.camelize}Controller".constantize<br />    raise "Can't determine controller class for #{@controller_class_name}" if @controller_class.nil?<br /><br />    @controller = @controller_class.new<br />    @request = ActionController::TestRequest.new<br />    @response = ActionController::TestResponse.new<br />    @response.session = @request.session<br />  end<br /> <br />  def type(field, value)<br />    visit url_for(:controller=>@controller_name, :action=>"auto_complete_for_#{field.id}", field.send(:name)=>value)<br />  end<br /> <br />  def items<br />    current_dom.search('//ul/li').map(&:inner_html)<br />  end<br />end<br /></pre><br /><br />Now when I run the feature it all passes.<br /><br /><pre><br />&lt;first scenario omitted&gt;<br /><br />  Scenario: View a candidate detail page testing (most of) the ajax # features/find_a_user.feature:13<br />    Given "Mickey Mouse" is a user living at "123 Main Street"      # features/step_definitions/user_steps.rb:1<br />    When I am on the homepage                                       # features/step_definitions/webrat_steps.rb:6<br />    And I typeahead in "Which user" with "Mickey Mouse"             # features/step_definitions/autocomplete_steps.rb:1<br />    And I fill in "Which user" with the first typeahead result      # features/step_definitions/autocomplete_steps.rb:7<br />    And I press "Find"                                              # features/step_definitions/webrat_steps.rb:14<br />    Then I should see "Mickey Mouse"                                # features/step_definitions/webrat_steps.rb:93<br />    And I should see "123 Main Street"                              # features/step_definitions/webrat_steps.rb:93<br /><br />2 scenarios (2 passed)<br />13 steps (13 passed)<br /></pre><br /><br />The last step I took was to test that the list returned in the typeahead was correct.  I created another scenario in my feature.<br /><br /><pre><br />  Scenario: Typeahead should return 2 users that match but not a third<br />    Given "Mickey Mouse" is a user living at "123 Main Street"<br />      And "Donald Duck" is a user living at "123 Pond Lane"<br />      And "Minnie Mouse" is a user living at "123 Disney Avenue"<br />    When I am on the homepage<br />      And I typeahead in "Which user" with "Mi"<br />    Then I should see in my typeahead "Mickey Mouse"<br />      And I should see in my typeahead "Minnie Mouse"<br />      And I should not see in my typeahead "Donald Duck"<br /></pre><br /><br />and I added two new steps<br /><br /><pre><br />Then /^I should see in my typeahead "(.*)"$/ do |text|<br />  @typeahead.response_body.should =~ /#{text}/m<br />end<br /><br />Then /^I should not see in my typeahead "(.*)"$/ do |text|<br />  @typeahead.response_body.should_not =~ /#{text}/m<br />end<br /></pre><br /><br />Now when I run my features all 3 scenarios are passing<br /><br /><pre><br />$ rake features<br />(in /Users/alexrothenberg/ruby/testing-ajax-example)<br />/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby -I "/Library/Ruby/Gems/1.8/gems/cucumber-0.3.2/lib:lib" "/Library/Ruby/Gems/1.8/gems/cucumber-0.3.2/bin/cucumber" --format pretty --require features/step_definitions/autocomplete_steps.rb --require features/step_definitions/user_steps.rb --require features/step_definitions/webrat_steps.rb --require features/support/autocomplete_steps_helper.rb --require features/support/env.rb --require features/support/paths.rb features/find_a_user.feature<br />Feature: Allow anyone to find a user and see their details<br />  In order to handle a large set of users <br />  I want search with autocomplete<br /><br />  Scenario: View a candidate detail page without testing ajax  # features/find_a_user.feature:5<br />    Given "Mickey Mouse" is a user living at "123 Main Street" # features/step_definitions/user_steps.rb:1<br />    When I am on the homepage                                  # features/step_definitions/webrat_steps.rb:6<br />    And I fill in "Which user" with "Mickey Mouse"             # features/step_definitions/webrat_steps.rb:22<br />    And I press "Find"                                         # features/step_definitions/webrat_steps.rb:14<br />    Then I should see "Mickey Mouse"                           # features/step_definitions/webrat_steps.rb:93<br />    And I should see "123 Main Street"                         # features/step_definitions/webrat_steps.rb:93<br /><br />  Scenario: View a candidate detail page testing (most of) the ajax # features/find_a_user.feature:13<br />    Given "Mickey Mouse" is a user living at "123 Main Street"      # features/step_definitions/user_steps.rb:1<br />    When I am on the homepage                                       # features/step_definitions/webrat_steps.rb:6<br />    And I typeahead in "Which user" with "Mickey Mouse"             # features/step_definitions/autocomplete_steps.rb:1<br />    And I fill in "Which user" with the first typeahead result      # features/step_definitions/autocomplete_steps.rb:7<br />    And I press "Find"                                              # features/step_definitions/webrat_steps.rb:14<br />    Then I should see "Mickey Mouse"                                # features/step_definitions/webrat_steps.rb:93<br />    And I should see "123 Main Street"                              # features/step_definitions/webrat_steps.rb:93<br /><br />  Scenario: Typeahead should return 2 users that match but not a third # features/find_a_user.feature:22<br />    Given "Mickey Mouse" is a user living at "123 Main Street"         # features/step_definitions/user_steps.rb:1<br />    And "Donald Duck" is a user living at "123 Pond Lane"              # features/step_definitions/user_steps.rb:1<br />    And "Minnie Mouse" is a user living at "123 Disney Avenue"         # features/step_definitions/user_steps.rb:1<br />    When I am on the homepage                                          # features/step_definitions/webrat_steps.rb:6<br />    And I typeahead in "Which user" with "Mi"                          # features/step_definitions/autocomplete_steps.rb:1<br />    Then I should see in my typeahead "Mickey Mouse"                   # features/step_definitions/autocomplete_steps.rb:16<br />    And I should see in my typeahead "Minnie Mouse"                    # features/step_definitions/autocomplete_steps.rb:16<br />    And I should not see in my typeahead "Donald Duck"                 # features/step_definitions/autocomplete_steps.rb:20<br /><br />3 scenarios (3 passed)<br />21 steps (21 passed)<br /></pre><br /><br />What I've done is not full javascript testing (for that I'm planning to look into <a href="http://blog.thinkrelevance.com/2009/4/30/javascript-testing-at-railsconf">Blue-Ridge</a> from Relevance).  This technique does allow you to test ajax (skipping the "J") without a browser.<div class="blogger-post-footer"><img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-2959343452329459972?l=www.alexrothenberg.com' alt='' /></div>
+<p>
+  I have lately fallen in love with using Cucumber and Webrat for my integration/acceptance testing. <a href="http://cukes.info/">Cucumber</a> because it allows non-technical people to write or at least read the test scenarios and <a href="http://github.com/brynary/webrat/tree/master">Webrat</a> because it matches content and encourages you to write integration tests without relying on xpath to find html elements. The way I like to use these tools is to run Rails integration tests which means its fast since I don’t need to start a mongrel or fire up a browser and can use Rails’ transactional fixtures to rollback all my database changes at the end of each test scenario. The only downside is that you can’t test javascript.<br>
+  <br>
+  Today I am going to talk about how to get around this and test a form with an ajax autocomplete field. I've built a sample application with all the code examples here and you can download it from <a href="http://github.com/alexrothenberg/testing-ajax-example">http://github.com/alexrothenberg/testing-ajax-example</a> if you like. The application I'm building is just some simple app created with scaffolding that just has a User resource with a name and address. I modified the /users page to not display all users but include the auto_complete typeahead to let you pick a user (imagining there may be a lot) so the page looks something like this.<br>
+  <br>
+  <a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://4.bp.blogspot.com/_36rptmL_RFc/SgG3eqE-W3I/AAAAAAAADOw/7p-_x0l6qLo/s1600-h/search_for_a_user_screen.png"><img style="cursor:pointer; cursor:hand;width: 320px; height: 157px;" src="http://4.bp.blogspot.com/_36rptmL_RFc/SgG3eqE-W3I/AAAAAAAADOw/7p-_x0l6qLo/s320/search_for_a_user_screen.png" border="0" alt="" id="BLOGGER_PHOTO_ID_5332745171102489458" name="BLOGGER_PHOTO_ID_5332745171102489458"></a><br>
+  <br>
+  My first test scenario will ignore the ajax and just test the form which is super easy and can be done by writing a single feature file.<br>
+  <br>
+</p>
+
+{% highlight Gherkin %}
+#features/find_a_user.feature
+Feature: Allow anyone to find a user and see their details
+  In order to handle a large set of users
+  I want search with autocomplete
+ 
+  Scenario: View a candidate detail page without testing ajax
+    Given "Mickey Mouse" is a user living at "123 Main Street"
+    When I am on the homepage
+      And I fill in "Which user" with "Mickey Mouse"
+      And I press "Find"
+    Then I should see "Mickey Mouse"
+      And I should see "123 Main Street"
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  I run it it all passes and I get<br>
+  <br>
+</p>
+
+{% highlight  Gherkin %}
+$ rake features
+(in /Users/alexrothenberg/ruby/testing-ajax-example)
+/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby -I "/Library/Ruby/Gems/1.8/gems/cucumber-0.3.2/lib:lib" 
+"/Library/Ruby/Gems/1.8/gems/cucumber-0.3.2/bin/cucumber" --format pretty --require features/step_definitions/user_steps.rb 
+--require features/step_definitions/webrat_steps.rb --require features/support/env.rb --require features/support/paths.rb 
+features/find_a_user.feature
+Feature: Allow anyone to find a user and see their details
+  In order to handle a large set of users 
+  I want search with autocomplete
+
+  Scenario: View a candidate detail page without testing ajax     # features/find_a_user.feature:5
+    Given "Mickey Mouse" is a user living at "123 Main Street"    # features/step_definitions/user_steps.rb:1
+    When I am on the homepage                                     # features/step_definitions/webrat_steps.rb:6
+    And I fill in "Which user" with "Mickey Mouse"                # features/step_definitions/webrat_steps.rb:22
+    And I press "Find"                                            # features/step_definitions/webrat_steps.rb:14
+    Then I should see "Mickey Mouse"                              # features/step_definitions/webrat_steps.rb:93
+    And I should see "123 Main Street"                            # features/step_definitions/webrat_steps.rb:93
+
+1 scenario (1 passed)
+6 steps (6 passed)
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  I makes use of the default webrat steps that cucumber gives you for free in features/steps/webrat_steps.rb so I don’t even have to write any code to get it to pass but I still haven’t tested any of my code that responds to the autocomplete request. I’d like my test to verify that my routes, controller and model will all work together. So, I write another scenario and run it and this time it fails because I haven't defined the typeahead steps for the typeahead lines.<br>
+  <br>
+</p>
+
+{% highlight Gherkin%}
+#first scenario omitted
+
+Scenario: View a candidate detail page testing (most of) the ajax # features/find_a_user.feature:13
+    Given "Mickey Mouse" is a user living at "123 Main Street"      # features/step_definitions/user_steps.rb:1
+    When I am on the homepage                                       # features/step_definitions/webrat_steps.rb:6
+    And I typeahead in "Which user" with "Mickey Mouse"             # features/find_a_user.feature:16
+    And I fill in "Which candidate" with the first typeahead result # features/find_a_user.feature:17
+    And I press "Find"                                              # features/step_definitions/webrat_steps.rb:14
+    Then I should see "Mickey Mouse"                                # features/step_definitions/webrat_steps.rb:93
+    And I should see "123 Main Street"                              # features/step_definitions/webrat_steps.rb:93
+
+2 scenarios (1 undefined, 1 passed)
+13 steps (3 skipped, 2 undefined, 8 passed)
+
+You can implement step definitions for undefined steps with these snippets:
+
+When /^I typeahead in "([^\"]*)" with "([^\"]*)"$/ do |arg1, arg2|
+  pending
+end
+
+When /^I fill in "([^\"]*)" with the first typeahead result$/ do |arg1|
+  pending
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  Now I take the hints cucumber has given me and write my autocomplete steps. The interesting thing here is that I need to leave the response object unchanged so I can fill in the form field after running the typeahead step so I can't use the existing webrat steps as they work on a single pair of request and response objects. So I knew I'd be creating a new class with its own request and response that could be used without affecting the one used by my other cucumber steps. Using good outside-in development practices I deferred thinking about how to do that and first wrote my steps file to look something like this. One interesting thing to notice here is that you can invoke a step from inside another step just by omitting the block as I do in the second step.<br>
+  <br>
+</p>
+
+{% highlight Gherkin %}
+When /^I typeahead in "(.*)" with "(.*)"$/ do |field, value|
+  field = field_labeled field
+  @typeahead = AutoCompleteStepHelper.new(request)
+  @typeahead.type(field, value)
+end
+
+When /^I fill in "(.*)" with the first typeahead result$/ do |field|
+  When %Q[I fill in "#{field}" with "#{@typeahead.items.first}"]
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  Now when run the feature again it fails telling me I haven’t yet built the AutoCompleteStepHelper.<br>
+  <br>
+</p>
+
+{% highlight Gherkin %}
+#first scenario omitted
+
+Scenario: View a candidate detail page testing (most of) the ajax # features/find_a_user.feature:13
+    Given "Mickey Mouse" is a user living at "123 Main Street"      # features/step_definitions/user_steps.rb:1
+    When I am on the homepage                                       # features/step_definitions/webrat_steps.rb:6
+    And I typeahead in "Which user" with "Mickey Mouse"             # features/step_definitions/autocomplete_steps.rb:1
+      uninitialized constant AutoCompleteStepHelper (NameError)
+      ./features/step_definitions/autocomplete_steps.rb:3:in `/^I typeahead in "(.*)" with "(.*)"$/'
+      features/find_a_user.feature:16:in `And I typeahead in "Which user" with "Mickey Mouse"'
+    And I fill in "Which candidate" with the first typeahead result # features/step_definitions/autocomplete_steps.rb:7
+    And I press "Find"                                              # features/step_definitions/webrat_steps.rb:14
+    Then I should see "Mickey Mouse"                                # features/step_definitions/webrat_steps.rb:93
+    And I should see "123 Main Street"                              # features/step_definitions/webrat_steps.rb:93
+
+2 scenarios (1 failed, 1 passed)
+13 steps (1 failed, 4 skipped, 8 passed)
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  So the next step is to write the AutoCompleteStepHelper class. This class’ job is to have its own request and response that will not affect the ones used by cucumber for the main page requests. It turns out that I can do this by having my class extend ActionController::IntegrationTest and I can even use webrat methods in it because webrat <a href="http://github.com/brynary/webrat/blob/481bfe03c0829a7d858443ceb6a51e1587a0d931/lib/webrat/rails.rb#L100-105">adds its methods to IntegrationTest</a>. In this example I'm calling <span style="font-family: courier new;">visit</span> and <span style="font-family: courier new;">current_dom</span> and using <a href="http://nokogiri.rubyforge.org/nokogiri/">nokogiri</a> to parse the dom. It is a little weird that I'm subclassing IntegrationTest but this class is not a TestUnit class itself but I decided that was okay.<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+class AutoCompleteStepsHelper < ActionController::IntegrationTest
+  def initialize(existing_request)
+    @controller_name = existing_request.parameters[:controller]
+    @controller_class = "#{@controller_name.to_s.camelize}Controller".constantize
+    raise "Can't determine controller class for #{@controller_class_name}" if @controller_class.nil?
+
+    @controller = @controller_class.new
+    @request = ActionController::TestRequest.new
+    @response = ActionController::TestResponse.new
+    @response.session = @request.session
+  end
+ 
+  def type(field, value)
+    visit url_for(:controller=>@controller_name, :action=>"auto_complete_for_#{field.id}", field.send(:name)=>value)
+  end
+ 
+  def items
+    current_dom.search('//ul/li').map(&:inner_html)
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  Now when I run the feature it all passes.<br>
+  <br>
+</p>
+
+{% highlight Gherkin%}
+#first scenario omitted
+
+  Scenario: View a candidate detail page testing (most of) the ajax # features/find_a_user.feature:13
+    Given "Mickey Mouse" is a user living at "123 Main Street"      # features/step_definitions/user_steps.rb:1
+    When I am on the homepage                                       # features/step_definitions/webrat_steps.rb:6
+    And I typeahead in "Which user" with "Mickey Mouse"             # features/step_definitions/autocomplete_steps.rb:1
+    And I fill in "Which user" with the first typeahead result      # features/step_definitions/autocomplete_steps.rb:7
+    And I press "Find"                                              # features/step_definitions/webrat_steps.rb:14
+    Then I should see "Mickey Mouse"                                # features/step_definitions/webrat_steps.rb:93
+    And I should see "123 Main Street"                              # features/step_definitions/webrat_steps.rb:93
+
+2 scenarios (2 passed)
+13 steps (13 passed)
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  The last step I took was to test that the list returned in the typeahead was correct. I created another scenario in my feature.<br>
+  <br>
+</p>
+
+{% highlight Gherkin %}
+Scenario: Typeahead should return 2 users that match but not a third
+    Given "Mickey Mouse" is a user living at "123 Main Street"
+      And "Donald Duck" is a user living at "123 Pond Lane"
+      And "Minnie Mouse" is a user living at "123 Disney Avenue"
+    When I am on the homepage
+      And I typeahead in "Which user" with "Mi"
+    Then I should see in my typeahead "Mickey Mouse"
+      And I should see in my typeahead "Minnie Mouse"
+      And I should not see in my typeahead "Donald Duck"
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  and I added two new steps<br>
+  <br>
+</p>
+
+{% highlight Gherkin %}
+Then /^I should see in my typeahead "(.*)"$/ do |text|
+  @typeahead.response_body.should =~ /#{text}/m
+end
+
+Then /^I should not see in my typeahead "(.*)"$/ do |text|
+  @typeahead.response_body.should_not =~ /#{text}/m
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  Now when I run my features all 3 scenarios are passing<br>
+  <br>
+</p>
+
+{% highlight Gherkin %}
+$ rake features
+(in /Users/alexrothenberg/ruby/testing-ajax-example)
+/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby -I "/Library/Ruby/Gems/1.8/gems/cucumber-0.3.2/lib:lib" 
+"/Library/Ruby/Gems/1.8/gems/cucumber-0.3.2/bin/cucumber" --format pretty --require features/step_definitions/autocomplete_steps.rb 
+--require features/step_definitions/user_steps.rb --require features/step_definitions/webrat_steps.rb 
+--require features/support/autocomplete_steps_helper.rb --require features/support/env.rb --require features/support/paths.rb 
+features/find_a_user.feature
+
+Feature: Allow anyone to find a user and see their details
+  In order to handle a large set of users 
+  I want search with autocomplete
+
+  Scenario: View a candidate detail page without testing ajax  # features/find_a_user.feature:5
+    Given "Mickey Mouse" is a user living at "123 Main Street" # features/step_definitions/user_steps.rb:1
+    When I am on the homepage                                  # features/step_definitions/webrat_steps.rb:6
+    And I fill in "Which user" with "Mickey Mouse"             # features/step_definitions/webrat_steps.rb:22
+    And I press "Find"                                         # features/step_definitions/webrat_steps.rb:14
+    Then I should see "Mickey Mouse"                           # features/step_definitions/webrat_steps.rb:93
+    And I should see "123 Main Street"                         # features/step_definitions/webrat_steps.rb:93
+
+  Scenario: View a candidate detail page testing (most of) the ajax # features/find_a_user.feature:13
+    Given "Mickey Mouse" is a user living at "123 Main Street"      # features/step_definitions/user_steps.rb:1
+    When I am on the homepage                                       # features/step_definitions/webrat_steps.rb:6
+    And I typeahead in "Which user" with "Mickey Mouse"             # features/step_definitions/autocomplete_steps.rb:1
+    And I fill in "Which user" with the first typeahead result      # features/step_definitions/autocomplete_steps.rb:7
+    And I press "Find"                                              # features/step_definitions/webrat_steps.rb:14
+    Then I should see "Mickey Mouse"                                # features/step_definitions/webrat_steps.rb:93
+    And I should see "123 Main Street"                              # features/step_definitions/webrat_steps.rb:93
+
+  Scenario: Typeahead should return 2 users that match but not a third # features/find_a_user.feature:22
+    Given "Mickey Mouse" is a user living at "123 Main Street"         # features/step_definitions/user_steps.rb:1
+    And "Donald Duck" is a user living at "123 Pond Lane"              # features/step_definitions/user_steps.rb:1
+    And "Minnie Mouse" is a user living at "123 Disney Avenue"         # features/step_definitions/user_steps.rb:1
+    When I am on the homepage                                          # features/step_definitions/webrat_steps.rb:6
+    And I typeahead in "Which user" with "Mi"                          # features/step_definitions/autocomplete_steps.rb:1
+    Then I should see in my typeahead "Mickey Mouse"                   # features/step_definitions/autocomplete_steps.rb:16
+    And I should see in my typeahead "Minnie Mouse"                    # features/step_definitions/autocomplete_steps.rb:16
+    And I should not see in my typeahead "Donald Duck"                 # features/step_definitions/autocomplete_steps.rb:20
+
+3 scenarios (3 passed)
+21 steps (21 passed)
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  What I've done is not full javascript testing (for that I'm planning to look into <a href="http://blog.thinkrelevance.com/2009/4/30/javascript-testing-at-railsconf">Blue-Ridge</a> from Relevance). This technique does allow you to test ajax (skipping the "J") without a browser.
+</p>

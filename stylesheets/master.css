@@ -1,6 +1,11 @@
 body {
 }
 
+#site {
+	width: 1000px;
+	margin: 0px auto;
+}
+
 #header {
   height: 140px;
 }

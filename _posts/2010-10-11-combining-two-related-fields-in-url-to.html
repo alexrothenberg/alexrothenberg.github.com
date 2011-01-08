@@ -4,4 +4,130 @@ layout: post
 title: Combining two related fields in a url to prevent tampering
 time: 2010-10-11 18:18:00 -04:00
 ---
-Usually when you select an item from a search results list you only need to pass the <span style="font-style:italic;">id</span> in the url and that's enough to lookup the rest of the details when processing the response.  Recently I had a case where I couldn't lookup the item from the id because it wasn't in my database.  I'm going to describe how I passed several pieces of information in a single url and what I did to ensure users could not be manipulate them independently.   <br /><br />My application was searching and displaying a list of companies then keeping track of which one the user selects.  <br /><br /><a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://1.bp.blogspot.com/_36rptmL_RFc/TKsmV5B4vYI/AAAAAAAAD2A/Wf9a6OI-4kY/s1600/company_search_results.png"><img style="cursor:pointer; cursor:hand;width: 320px; height: 147px;" src="http://1.bp.blogspot.com/_36rptmL_RFc/TKsmV5B4vYI/AAAAAAAAD2A/Wf9a6OI-4kY/s320/company_search_results.png" border="0" alt=""id="BLOGGER_PHOTO_ID_5524551525427887490" /></a><br /><br />When someone clicks on a company name it would save the company's id and display a nice message "Thanks for selecting Google Inc."  Since the companies came from a slow external service I didn't want to call again, I passed both the <span style="font-style:italic;">id</span> and <span style="font-style:italic;">name</span> in the url. <br /><br />I built a couple of simple <a href="http://haml-lang.com/">haml</a> files to show my company list.  Each row had a link to display the company name and passed both the name and id in the url.<br /><br /><pre><br /># search_results.html.haml<br />%table<br />  %tr<br />    %th Company Name<br />    %th Location<br />  = render @companies<br /><br /><br /># _company.html.haml partial<br />%tr<br />  %td= link_to company.name, company_path(:id=>company.id, :name=>company.name)<br />  %td= company.location<br /></pre><br /><br />The controller code was also pretty straightforward.<br /><br /><pre><br />class CompaniesController<br />  def show<br />    company = Company.new(:id=>params[:id], :name => params[:name])<br />    current_user.update_selected_company = company<br />  end<br />end<br /></pre><br /><br />This worked great and worked, but then we started looking at the urls in our browser and noticed they looked like <code>http://my.site.com/companies/60902413&name=Google+Inc.</code>.  <br /><br />Hmm ... What would happen if someone changed the name in the url?  We tried loading <code>http://my.site.com/companies/60902413&name=Some+Silly+Name</code>.  Uh-oh, our database now stored the selected company <span style="font-style:italic;">Some Silly Name</span> with id #60902413.  This could be confusing or worse a security risk where a clever (or malicious) user could store inaccurate information in our database.<br /><br />Our solution was to combine the two fields into a single query parameter that was resistant to user tampering and is passed as a single unit.  Fortunately Rails passes the session back and forth in a cookie with just that requirement.  The session is a hash of many different key-value pairs that need to be encoded as a single cookie, it also contains sensitive information that should be resistant to tampering (and unreadable) and, most importantly it turns out to be something we could reuse.<br /><br />Starting from the outside in what we wanted to do was rewrite our <code>_company.html.haml</code> partial view to put the single encrypted form of the company on the url.<br /><br /><pre><br />%tr<br />  %td= link_to company.name, company_path(:id=>company.to_encrypted_s)<br />  %td= company.location<br /></pre><br /><br />and parse that in the controller<br /><br /><pre><br />class CompaniesController<br />  def action<br />    company = Company.from_encrypted_s(params[:id])<br />    current_user.update_selected_company = company<br />  end<br />end<br /></pre><br /><br />Ok, but what do those <span style="font-style:italic;">to_encrypted_s</span> and <span style="font-style:italic;">from_encrypted_s</span> methods do?<br /><br /><pre><br />class Company<br />  def to_encrypted_s<br />    Encryption.new.encrypt(:company_name=>company_name, :duns=>duns)<br />  end<br /><br />  def self.from_encrypted_s encrypted_data<br />    Company.new Encryption.new.decrypt(encrypted_data)<br />  end<br />end<br /></pre><br /><br />I still haven't told you how they work, we're just working down from the outside-in figuring out what other classes we'll need.  So what does the <span style="font-style:italic;">Encryption</span> class look like?<br /><br /><pre><br />class Encryption<br />  def initialize<br />    secret = (Rails.version > '3.0') ?<br />             Rails.application.config.cookie_secret : <br />             ActionController::Base.session_options[:secret]<br />    @verifier = ActiveSupport::MessageVerifier.new(secret, 'SHA1')<br />  end<br /><br />  def encrypt message<br />    @verifier.generate message<br />  end<br /><br />  def decrypt encrypted<br />    @verifier.verify encrypted<br />  end<br />end<br /></pre><br /><br />We make use of the <a href="http://api.rubyonrails.org/classes/ActiveSupport/MessageVerifier.html">ActiveSupport::MessageVerifier</a> class which as the documentation says "makes it easy to generate and verify messages which are signed to prevent tampering".  <br /><br />Now when we select a company we get a url with a crazy long id like http://my.site.com/company/BAh7BzoJZHVuc2kDE%2BAUOhFjb21wYW55X25hbWUiMEludGVybmF0aW9uYWwgQnVzaW5lc3MgTWFjaGluZXMgQ29ycG9yYXRpb24%3D--9027b2c449c0b4a1aea375cb1722fa9db8e56066.  If someone were to try and change the really long id in the url the application will throw an <span style="font-style:italic;">ActiveSupport::MessageVerifier::InvalidSignature</span> exception instead of saving bad data.<br /><br />We've given up readability in the url but in exchange we're guaranteed the id and name we get in the controller go with each other.<div class="blogger-post-footer"><img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-599214374869051261?l=www.alexrothenberg.com' alt='' /></div>
+<p>
+  Usually when you select an item from a search results list you only need to pass the <span style="font-style:italic;">id</span> in the url and that's enough to lookup the rest of the details when processing the response. Recently I had a case where I couldn't lookup the item from the id because it wasn't in my database. I'm going to describe how I passed several pieces of information in a single url and what I did to ensure users could not be manipulate them independently.<br>
+  <br>
+  My application was searching and displaying a list of companies then keeping track of which one the user selects.<br>
+  <br>
+  <a onblur="try {parent.deselectBloggerImageGracefully();} catch(e) {}" href="http://1.bp.blogspot.com/_36rptmL_RFc/TKsmV5B4vYI/AAAAAAAAD2A/Wf9a6OI-4kY/s1600/company_search_results.png"><img style="cursor:pointer; cursor:hand;width: 320px; height: 147px;" src="http://1.bp.blogspot.com/_36rptmL_RFc/TKsmV5B4vYI/AAAAAAAAD2A/Wf9a6OI-4kY/s320/company_search_results.png" border="0" alt="" id="BLOGGER_PHOTO_ID_5524551525427887490" name="BLOGGER_PHOTO_ID_5524551525427887490"></a><br>
+  <br>
+  When someone clicks on a company name it would save the company's id and display a nice message "Thanks for selecting Google Inc." Since the companies came from a slow external service I didn't want to call again, I passed both the <span style="font-style:italic;">id</span> and <span style="font-style:italic;">name</span> in the url.<br>
+  <br>
+  I built a couple of simple <a href="http://haml-lang.com/">haml</a> files to show my company list. Each row had a link to display the company name and passed both the name and id in the url.<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+# search_results.html.haml
+%table
+  %tr
+    %th Company Name
+    %th Location
+  = render @companies
+
+
+# _company.html.haml partial
+%tr
+  %td= link_to company.name, company_path(:id=>company.id, :name=>company.name)
+  %td= company.location
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  The controller code was also pretty straightforward.<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+class CompaniesController
+  def show
+    company = Company.new(:id=>params[:id], :name => params[:name])
+    current_user.update_selected_company = company
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  This worked great and worked, but then we started looking at the urls in our browser and noticed they looked like <code>http://my.site.com/companies/60902413&amp;name=Google+Inc.</code>.<br>
+  <br>
+  Hmm ... What would happen if someone changed the name in the url? We tried loading <code>http://my.site.com/companies/60902413&amp;name=Some+Silly+Name</code>. Uh-oh, our database now stored the selected company <span style="font-style:italic;">Some Silly Name</span> with id #60902413. This could be confusing or worse a security risk where a clever (or malicious) user could store inaccurate information in our database.<br>
+  <br>
+  Our solution was to combine the two fields into a single query parameter that was resistant to user tampering and is passed as a single unit. Fortunately Rails passes the session back and forth in a cookie with just that requirement. The session is a hash of many different key-value pairs that need to be encoded as a single cookie, it also contains sensitive information that should be resistant to tampering (and unreadable) and, most importantly it turns out to be something we could reuse.<br>
+  <br>
+  Starting from the outside in what we wanted to do was rewrite our <code>_company.html.haml</code> partial view to put the single encrypted form of the company on the url.<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+%tr
+  %td= link_to company.name, company_path(:id=>company.to_encrypted_s)
+  %td= company.location
+{% endhighlight %}
+
+<p>
+  and parse that in the controller
+</p>
+
+{% highlight ruby %}
+class CompaniesController
+  def action
+    company = Company.from_encrypted_s(params[:id])
+    current_user.update_selected_company = company
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  Ok, but what do those <span style="font-style:italic;">to_encrypted_s</span> and <span style="font-style:italic;">from_encrypted_s</span> methods do?<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+class Company
+  def to_encrypted_s
+    Encryption.new.encrypt(:company_name=>company_name, :duns=>duns)
+  end
+
+  def self.from_encrypted_s encrypted_data
+    Company.new Encryption.new.decrypt(encrypted_data)
+  end
+end
+{% endhighlight %}
+
+<p>
+  I still haven't told you how they work, we're just working down from the outside-in figuring out what other classes we'll need. So what does the <span style="font-style:italic;">Encryption</span> class look like?
+</p>
+
+{% highlight ruby %}
+class Encryption
+  def initialize
+    secret = (Rails.version > '3.0') ?
+             Rails.application.config.cookie_secret : 
+             ActionController::Base.session_options[:secret]
+    @verifier = ActiveSupport::MessageVerifier.new(secret, 'SHA1')
+  end
+
+  def encrypt message
+    @verifier.generate message
+  end
+
+  def decrypt encrypted
+    @verifier.verify encrypted
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  We make use of the <a href="http://api.rubyonrails.org/classes/ActiveSupport/MessageVerifier.html">ActiveSupport::MessageVerifier</a> class which as the documentation says "makes it easy to generate and verify messages which are signed to prevent tampering".<br>
+  <br>
+  Now when we select a company we get a url with a crazy long id like http://my.site.com/company/BAh7BzoJZHVuc2kDE%2BAUOhFjb21wYW55X25hbWUiMEludGVybmF0aW9uYWwgQnVzaW5lc3MgTWFjaGluZXMgQ29ycG9yYXRpb24%3D--9027b2c449c0b4a1aea375cb1722fa9db8e56066. If someone were to try and change the really long id in the url the application will throw an <span style="font-style:italic;">ActiveSupport::MessageVerifier::InvalidSignature</span> exception instead of saving bad data.<br>
+  <br>
+  We've given up readability in the url but in exchange we're guaranteed the id and name we get in the controller go with each other.
+</p>

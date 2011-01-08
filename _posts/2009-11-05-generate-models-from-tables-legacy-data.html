@@ -4,4 +4,206 @@ layout: post
 title: Generate Models from Tables - Legacy Data Gem
 time: 2009-11-05 15:48:00 -05:00
 ---
-Today I'd like to announce the release of a gem I've been working on <a href="http://github.com/alexrothenberg/legacy_data">Legacy Data</a><br /><br />Getting started on a Rails project with a large existing database can be daunting.  How to you extract all the information that's<br />encoded in the database?  Do you have to understand the entire data model before you get started?  The <code>models_from_tables</code> generator<br />in the <code>legacy_data</code> gem can help!  This generator looks into your existing database and generates ActiveRecord models based on the<br />information encoded in it.<br /><br /><h2>How to use it</h2><br /><ul><br /><li>To generate an ActiveRecord model for each table in the database just type<br />  <code>script/generate models_from_tables</code><br /></li><br /><li>If you don't want all tables in the database tell it which table to model<br />  <code>script/generate models_from_tables --table-name comments</code><br />  This uses any foreign_key constraints in the database to spider the database and model the comments table and all associated tables.<br /></li><br /><li>If you <em>really</em> only want the comments table tell it not to follow any foreign_keys<br /><code>script/generate models_from_tables --table-name comments --skip-associated</code><br /></li><br /><li>If you use <a href="http://github.com/thoughtbot/factory_girl">factory girl</a> (and everyone should) it will generate a simple factory for each model it generates<br />  <code>script/generate models_from_tables --table-name comments --with-factories</code><br /></li><br /></ul><br />(You do need to install the plugin <code>gem install legacy_data</code> as long as http://gemcutter.org is one of your gem sources)<br /><br /><h3>Examples</h3><br />Several examples come with the gem source in the <a href="http://github.com/alexrothenberg/legacy_data/tree/master/examples/">examples folder on github</a>.  These include<br /><ul><br /><li>A simple blog database tested with MySQL and Sqlite3</li><br /><li>The Drupal 6.14 database tested with MySQL</li><br /><li>The J2EE Petstore example tested with MySQL, Sqlite3 and Oracle</li><br /></ul><br /><h2>What kind of information can it extract from the database?</h2><br /><h3>Associations</h3><br />If the database contains foreign_key constraints it uses them to build <code>has_many</code> or <code>belongs_to</code> associations<br />in your ActiveRecord models<br /><h3>Validation constraints</h3><br />It will generate the following types of validation constraints in your models<br /><ul><br /><li><strong>validates_uniqueness_of</strong>   - For columns where the database has an index that enforces uniqueness</li><br /><li><strong>validates_presence_of</strong>     - When the database column is non-nullable</li><br /><li><strong>validates_inclusion_of</strong>    - For non-nullable boolean columns and custom constraints with a SQL rule <em>flag IN ('Y', 'N')</em></li><br /><li><strong>validates_numericality_of</strong> - For integer columns (nullable and non-nullable)</li><br /><li><strong>custom validation</strong>         - For custom SQL validation rules in the database it puts a placeholder in your model with the original SQL for you to translate into Ruby</li><br /></ul><br /><h3>Non-Rails naming conventions</h3><br />Since the database is existing it's likely that it doesn't follow Rails naming conventions.  Not to worry as the generator will<br />put the non-standard name into the generated models if it needs to.<br><br /><br />What kinds of non-standard names can it generate?<br /><br />Let's look at a sample output<br /><br /><pre><code><br />class Post &lt; ActiveRecord::Base<br /><br />  set_table_name  :tbpost<br />  set_primary_key :postid<br />  <br />  # Relationships<br />  has_many :comments, :foreign_key =&gt; :postid<br /><br />  # Constraints<br />  validates_presence_of :title, :body<br />  <br />end<br /></code></pre><br /><br /><ul><br /><li><strong>Class Names</strong>  - It named the model <em>Post</em> instead of the Rails convention <em>Tbpost</em>. The generator could not do this itself but knowing the conventions will often not apply to legacy databases it pauses after spidering the database giving you a chance to override the table to class name mapping.  It generates a yaml file <code>app/models/table_mappings.yml</code> where you can verify or change any class name before  proceeding to generate the models.</li><br /><li><strong>Table Names</strong>  - It overrode the table name since the actual name <em>tbpost</em> does not match the Rails naming convention <em>posts</em></li><br /><li><strong>Primary Keys</strong> - It overrode the primary key since the actual column <em>postid</em> does not match the Rails naming convention <em>id</em></li><br /><li><strong>Foreign Keys</strong> - It overrode the foreign key on the comment table to be <em>postid</em> instead of the Rails naming convention <em>id</em></li><br /></ul><div class="blogger-post-footer"><img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-7392346001872516595?l=www.alexrothenberg.com' alt='' /></div>
+
+<p>
+  Today I'd like to announce the release of a gem I've been working on <a href="http://github.com/alexrothenberg/legacy_data">Legacy Data</a><br>
+  <br>
+  Getting started on a Rails project with a large existing database can be daunting. How to you extract all the information that's<br>
+  encoded in the database? Do you have to understand the entire data model before you get started? The <code>models_from_tables</code> generator<br>
+  in the <code>legacy_data</code> gem can help! This generator looks into your existing database and generates ActiveRecord models based on the<br>
+  information encoded in it.<br>
+  <br>
+</p>
+<h2>
+  How to use it
+</h2>
+<p>
+  <br>
+</p>
+<ul>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>To generate an ActiveRecord model for each table in the database just type<br>
+    <code>script/generate models_from_tables</code><br>
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>If you don't want all tables in the database tell it which table to model<br>
+    <code>script/generate models_from_tables --table-name comments</code><br>
+    This uses any foreign_key constraints in the database to spider the database and model the comments table and all associated tables.<br>
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>If you <em>really</em> only want the comments table tell it not to follow any foreign_keys<br>
+    <code>script/generate models_from_tables --table-name comments --skip-associated</code><br>
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>If you use <a href="http://github.com/thoughtbot/factory_girl">factory girl</a> (and everyone should) it will generate a simple factory for each model it generates<br>
+    <code>script/generate models_from_tables --table-name comments --with-factories</code><br>
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+</ul>
+<p>
+  <br>
+  (You do need to install the plugin <code>gem install legacy_data</code> as long as http://gemcutter.org is one of your gem sources)<br>
+  <br>
+</p>
+<h3>
+  Examples
+</h3>
+<p>
+  <br>
+  Several examples come with the gem source in the <a href="http://github.com/alexrothenberg/legacy_data/tree/master/examples/">examples folder on github</a>. These include<br>
+</p>
+<ul>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>A simple blog database tested with MySQL and Sqlite3
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>The Drupal 6.14 database tested with MySQL
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>The J2EE Petstore example tested with MySQL, Sqlite3 and Oracle
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+</ul>
+<p>
+  <br>
+</p>
+<h2>
+  What kind of information can it extract from the database?
+</h2>
+<p>
+  <br>
+</p>
+<h3>
+  Associations
+</h3>
+<p>
+  <br>
+  If the database contains foreign_key constraints it uses them to build <code>has_many</code> or <code>belongs_to</code> associations<br>
+  in your ActiveRecord models<br>
+</p>
+<h3>
+  Validation constraints
+</h3>
+<p>
+  <br>
+  It will generate the following types of validation constraints in your models<br>
+</p>
+<ul>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>validates_uniqueness_of</strong> - For columns where the database has an index that enforces uniqueness
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>validates_presence_of</strong> - When the database column is non-nullable
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>validates_inclusion_of</strong> - For non-nullable boolean columns and custom constraints with a SQL rule <em>flag IN ('Y', 'N')</em>
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>validates_numericality_of</strong> - For integer columns (nullable and non-nullable)
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>custom validation</strong> - For custom SQL validation rules in the database it puts a placeholder in your model with the original SQL for you to translate into Ruby
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+</ul>
+<p>
+  <br>
+</p>
+<h3>
+  Non-Rails naming conventions
+</h3>
+<p>
+  <br>
+  Since the database is existing it's likely that it doesn't follow Rails naming conventions. Not to worry as the generator will<br>
+  put the non-standard name into the generated models if it needs to.<br>
+  <br>
+  <br>
+  What kinds of non-standard names can it generate?<br>
+  <br>
+  Let's look at a sample output<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+class Post < ActiveRecord::Base
+
+  set_table_name  :tbpost
+  set_primary_key :postid
+  
+  # Relationships
+  has_many :comments, :foreign_key => :postid
+
+  # Constraints
+  validates_presence_of :title, :body
+  
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+</p>
+<ul>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>Class Names</strong> - It named the model <em>Post</em> instead of the Rails convention <em>Tbpost</em>. The generator could not do this itself but knowing the conventions will often not apply to legacy databases it pauses after spidering the database giving you a chance to override the table to class name mapping. It generates a yaml file <code>app/models/table_mappings.yml</code> where you can verify or change any class name before proceeding to generate the models.
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>Table Names</strong> - It overrode the table name since the actual name <em>tbpost</em> does not match the Rails naming convention <em>posts</em>
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>Primary Keys</strong> - It overrode the primary key since the actual column <em>postid</em> does not match the Rails naming convention <em>id</em>
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>
+    <strong>Foreign Keys</strong> - It overrode the foreign key on the comment table to be <em>postid</em> instead of the Rails naming convention <em>id</em>
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+</ul>

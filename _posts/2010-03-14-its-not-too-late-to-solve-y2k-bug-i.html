@@ -4,4 +4,127 @@ layout: post
 title: Its not too late to solve a Y2K bug - I found one in 2010
 time: 2010-03-14 18:59:00 -04:00
 ---
-I thought a historical opportunity had passed me by, but a full decade after the turn of the millennium in 2010 I found my first Y2K bug!  If you, like me, were working in eCommerce (who remembers that buzzword?) in the late 1990s and thought you missed your chance I'm here to tell you its still not too late.  As long as you work for the right company with the enough legacy technology around you can still find a Y2K bug of your own!<br /><br /><span style="font-weight:bold;">What was going on?</span><br /><br />I was writing a new Rails application on top of an old Oracle database.  The database had a constraint <br /><br /><pre><br />graduationdate BETWEEN TO_DATE('01-JAN-1900','DD-MON-YYYY') AND TO_DATE('31-DEC-2100','DD-MON-YYYY')<br /></pre><br /><br />To me this looked like a basic check to make sure the date was within a 300 year range as a basic sanity-check.  I implemented an ActiveRecord validation in my model <br /><br /><pre><br />validate :validate_graduation_date<br />def validate_graduation_date<br />  unless graduationdate.nil?<br />    earliest_date, latest_date = Date.parse('01-JAN-1900'), Date.parse('31-DEC-2100')<br />    errors.add(:graduationdate, 'must be between 01-JAN-1900 and 31-DEC-2100') unless graduationdate > earliest_date and graduationdate < latest_date  <br />  end<br />end<br /></pre><br /><br />Of course I had unit tests that all passed<br /><br /><pre><br />describe 'graduation date' do<br />  it 'should not allow July 4, 1776' do<br />    education = Factory.build :education, :graduationdate=>Date.parse('04-JUL-1776')<br />    education.should_not be_valid<br />  end<br />  it 'should allow Aug 1 1970' do<br />    education = Factory.build :education, :graduationdate=>Date.parse('01-AUG-1970')<br />    education.should be_valid<br />  end<br />  it 'should allow Mar 15 2000' do<br />    education = Factory.build :education, :graduationdate=>Date.parse('15-MAR-2000')<br />    education.should be_valid<br />  end<br />  it 'should not allow Jan 1, 2525' do<br />    education = Factory.build :education, :graduationdate=>Date.parse('01-JAN-2525')<br />    education.should_not be_valid<br />  end<br />end<br /></pre><br /><br />BUT once I went into production with my legacy database I started getting errors.   So I took a look at one of the rows giving me an error and discovered the graduation date was <b>01-JAN-00</b>.  AHA a 2-digit year.  That doesn't look good and there were over 100,000 rows with this problem.<br /><br /><pre><br />select count(*) from education where graduationdate = to_date('01-jan-1900')<br />COUNT(*)               <br />---------------------- <br />116232       <br /></pre><br /><br />Once I realized that the database contained data for January 1st 1900 and I discovered the Oracle BETWEEN function is inclusive I was able to solve my problem by changing my ActiveRecord validation to have a <code>&gt;= and lt;=</code>.  <br /><br /><pre><br />validate :validate_graduation_date<br />def validate_graduation_date<br />  unless graduationdate.nil?<br />    earliest_date, latest_date = Date.parse('01-JAN-1900'), Date.parse('31-DEC-2100')<br />    errors.add(:graduationdate, 'must be between 01-JAN-1900 and 31-DEC-2100') unless graduationdate >= earliest_date and graduationdate <= latest_date  <br />  end<br />end<br /></pre><br /><br />I added some specs to test my boundary conditions<br /><pre><br />it 'should not allow Dec 31 1899' do<br />  education = Factory.build :education, :graduationdate=>Date.parse('31-DEC-1899')<br />  education.should_not be_valid<br />end<br />it 'should allow Jan 1 1900' do<br />  education = Factory.build :education, :graduationdate=>Date.parse('01-JAN-1900')<br />  education.should be_valid<br />end<br />it 'should allow Dec 31 2099' do<br />  education = Factory.build :education, :graduationdate=>Date.parse('31-DEC-2099')<br />  education.should be_valid<br />end<br />it 'should allow Jan 1 2100' do<br />  education = Factory.build :education, :graduationdate=>Date.parse('01-JAN-2100')<br />  education.should_not be_valid<br />end<br /></pre><br /><br /><b>So what's the moral?  </b><br /><br />I'm not sure but when you're have to integrate with a legacy system you should account for the absurd - in my case a job application from a candidate who graduated more than 100 years ago!<br /><br />And if you feel like you missed out on a once-in-a-lifetime opportunity to work on Y2K bugs don't despair.  They are still out there!<div class="blogger-post-footer"><img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-6475186139609059829?l=www.alexrothenberg.com' alt='' /></div>
+
+<p>
+  I thought a historical opportunity had passed me by, but a full decade after the turn of the millennium in 2010 I found my first Y2K bug! If you, like me, were working in eCommerce (who remembers that buzzword?) in the late 1990s and thought you missed your chance I'm here to tell you its still not too late. As long as you work for the right company with the enough legacy technology around you can still find a Y2K bug of your own!<br>
+  <br>
+  <span style="font-weight:bold;">What was going on?</span><br>
+  <br>
+  I was writing a new Rails application on top of an old Oracle database. The database had a constraint<br>
+  <br>
+</p>
+
+<pre>
+<br>graduationdate BETWEEN TO_DATE('01-JAN-1900','DD-MON-YYYY') AND TO_DATE('31-DEC-2100','DD-MON-YYYY')<br>
+</pre>
+
+<p>
+  <br>
+  <br>
+  To me this looked like a basic check to make sure the date was within a 300 year range as a basic sanity-check. I implemented an ActiveRecord validation in my model<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+validate :validate_graduation_date
+def validate_graduation_date
+  unless graduationdate.nil?
+    earliest_date, latest_date = Date.parse('01-JAN-1900'), Date.parse('31-DEC-2100')
+    errors.add(:graduationdate, 'must be between 01-JAN-1900 and 31-DEC-2100') unless graduationdate > earliest_date and graduationdate < latest_date  
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  Of course I had unit tests that all passed<br>
+  <br>
+</p>
+
+{% highlight gherkin %}
+describe 'graduation date' do
+  it 'should not allow July 4, 1776' do
+    education = Factory.build :education, :graduationdate=>Date.parse('04-JUL-1776')
+    education.should_not be_valid
+  end
+  it 'should allow Aug 1 1970' do
+    education = Factory.build :education, :graduationdate=>Date.parse('01-AUG-1970')
+    education.should be_valid
+  end
+  it 'should allow Mar 15 2000' do
+    education = Factory.build :education, :graduationdate=>Date.parse('15-MAR-2000')
+    education.should be_valid
+  end
+  it 'should not allow Jan 1, 2525' do
+    education = Factory.build :education, :graduationdate=>Date.parse('01-JAN-2525')
+    education.should_not be_valid
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  BUT once I went into production with my legacy database I started getting errors. So I took a look at one of the rows giving me an error and discovered the graduation date was <b>01-JAN-00</b>. AHA a 2-digit year. That doesn't look good and there were over 100,000 rows with this problem.<br>
+  <br>
+</p>
+
+<pre>
+select count(*) from education where graduationdate = to_date('01-jan-1900')
+COUNT(*)               
+---------------------- 
+116232       
+</pre>
+
+<p>
+  <br>
+  <br>
+  Once I realized that the database contained data for January 1st 1900 and I discovered the Oracle BETWEEN function is inclusive I was able to solve my problem by changing my ActiveRecord validation to have a <code>&gt;= and lt;=</code>.<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+validate :validate_graduation_date
+def validate_graduation_date
+  unless graduationdate.nil?
+    earliest_date, latest_date = Date.parse('01-JAN-1900'), Date.parse('31-DEC-2100')
+    errors.add(:graduationdate, 'must be between 01-JAN-1900 and 31-DEC-2100') unless graduationdate >= earliest_date and graduationdate <= latest_date  
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  I added some specs to test my boundary conditions<br>
+</p>
+
+{% highlight ruby %}
+it 'should not allow Dec 31 1899' do
+  education = Factory.build :education, :graduationdate=>Date.parse('31-DEC-1899')
+  education.should_not be_valid
+end
+it 'should allow Jan 1 1900' do
+  education = Factory.build :education, :graduationdate=>Date.parse('01-JAN-1900')
+  education.should be_valid
+end
+it 'should allow Dec 31 2099' do
+  education = Factory.build :education, :graduationdate=>Date.parse('31-DEC-2099')
+  education.should be_valid
+end
+it 'should allow Jan 1 2100' do
+  education = Factory.build :education, :graduationdate=>Date.parse('01-JAN-2100')
+  education.should_not be_valid
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  <b>So what's the moral?</b><br>
+  <br>
+  I'm not sure but when you're have to integrate with a legacy system you should account for the absurd - in my case a job application from a candidate who graduated more than 100 years ago!<br>
+  <br>
+  And if you feel like you missed out on a once-in-a-lifetime opportunity to work on Y2K bugs don't despair. They are still out there!
+</p>

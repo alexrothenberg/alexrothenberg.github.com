@@ -16,7 +16,7 @@ user_names = User.all.collect {|user| user.name }
   I recently started discovered I could write the same thing even more concisely (as long as I'm using Rails or Ruby 1.9)<br>
 
 {% highlight ruby %}
-user_names = User.all.collect(&amp;:name)
+user_names = User.all.collect(&:name)
 {% endhighlight %}
 
   <br>
@@ -59,7 +59,7 @@ was_block_given? {}
 # Passing a proc is not the same as having a block
 was_block_given? Proc.new{}
 ArgumentError: wrong number of arguments (1 for 0)
-  from (irb):195:in `was_block_given?'
+  from (irb):195:in 'was_block_given?'
   from (irb):195
   
 # Prefixing the proc with an &amp; makes it like a block
@@ -81,9 +81,9 @@ was_block_given? &amp;Proc.new{}
 def collect
   ary = []
   if block_given?
-    each { |o| ary &lt;&lt; yield(o) }
+    each { |o| ary << yield(o) }
   else
-    each { |o| ary &lt;&lt; o }
+    each { |o| ary << o }
   end
   ary
 end
@@ -96,7 +96,7 @@ class Symbol
   # Turns the symbol into a simple proc, which is especially useful for enumerations. Examples:
   #
   #   # The same as people.collect { |p| p.name }
-  #   people.collect(&amp;:name)
+  #   people.collect(&:name)
   #
   #   # The same as people.select { |p| p.manager? }.collect { |p| p.salary }
   #   people.select(&:manager?).collect(&:salary)

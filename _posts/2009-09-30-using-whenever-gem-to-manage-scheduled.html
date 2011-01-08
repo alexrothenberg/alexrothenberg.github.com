@@ -4,4 +4,188 @@ layout: post
 title: Using the Whenever gem to manage scheduled cron jobs without installing it on the server
 time: 2009-09-30 13:02:00 -04:00
 ---
-I've been using <a href="http://github.com/javan/whenever">Javan's Whenever gem</a> to manage scheduled jobs in my project and its fantastic!!  There are many existing resources where you can learn more (<a href="http://github.com/javan/whenever">readme</a>, <a href="http://railscasts.com/episodes/164-cron-in-ruby">railscast</a> <a href="http://groups.google.com/group/whenever-gem">google group</a>) but I'd like to describe the specific way I'm using it  <br /><ul><br />  <li>When the gem is not installed on my server</li><br />  <li>How administrators can use Capistrano to both schedule and unschedule your jobs</li><br />  <li>How to use a library such as the Oracle client that requires certain environment variables</li><br /></ul> <br /><br />At the end of the day we want to have 2 capistrano tasks we can run to have cron call a rake task of ours on the schedule we want.<br /><br /><pre><br />  cap schedule_jobs<br />  cap unschedule_jobs<br /></pre><br /><br />If we want to get fancy and pass a custom configuration argument that will be passed into the rake task.<br /><pre><br />  cap schedule_jobs SOME_CONFIGURATION=false<br /></pre><br /><br /><h2>When the gem is not installed on my server</h2><br />Let's start with the Capfile<br /><pre><br />  #Capfile<br />  desc "Schedule the jobs"<br />  task :schedule_job, :roles => :app, :only => { :primary => true } do<br />    some_configuration = ENV['SOME_CONFIGURATION'] || true #default to true<br />    arguments = ["RAILS_ENV=#{rails_env}",<br />                 "APP_PATH=#{current_path}",<br />                 "SOME_CONFIGURATION=#{some_configuration}"].join(' ')<br />    run "cd #{current_path} &amp;&amp; #{rake} whenever:update_crontab #{arguments}"<br />  end<br /><br />  desc "Unschedule the jobs"<br />  task :unschedule_job, :roles => :app, :only => { :primary => true } do<br />    run "cd #{current_path} &amp;&amp; #{rake} whenever:update_crontab  UNSCHEDULE=true"<br />  end<br /></pre><br /><br />How does this differ from the <a href="http://github.com/javan/whenever/blob/master/README.rdoc">example</a> on the whenever site?  Since the gem is not installed on the server we cannot call whenever from the command line so invoke the whenever:update_crontab rake task instead and to allow administrators to easily disable the scheduled jobs we define the unschedule_jobs capistrano task.  Let's take a look at the <span style="font-family: 'courier new';">whenever:update_crontab</span> Rake task that gets this all done.<br /><br /><pre><br />  #lib/tasks/whenever.rake<br />  namespace :whenever do<br />    desc "updates crontab with our scheduled jobs"  <br />    task :update_crontab => :load_whenever_gem do     <br />      Whenever::CommandLine.execute({:update=>true, :identifier=>'YOUR_APP_NAME'})<br />    end<br /><br />    task :load_whenever_gem do     <br />      begin<br />        gem_dir_root = "#{RAILS_ROOT}/vendor/gems/"<br />        chronic_gem_dir = Dir["#{RAILS_ROOT}/vendor/gems/*"].detect do |subdir|<br />          subdir.gsub(gem_dir_root,"") =~ /^(\w+-)?chronic-(\d+)/ && File.exist?("#{subdir}/lib/chronic.rb")<br />        end<br />        require "#{chronic_gem_dir}/lib/chronic"<br /><br />        whenever_gem_dir = Dir["#{RAILS_ROOT}/vendor/gems/*"].detect do |subdir|<br />          subdir.gsub(gem_dir_root,"") =~ /^(\w+-)?whenever-(\d+)/ && File.exist?("#{subdir}/lib/whenever.rb")<br />        end<br />        require "#{whenever_gem_dir}/lib/whenever"<br /><br />      rescue MissingSourceFile => e<br />        raise "Cannot find Whenever or Chronic : #{e}"<br />      end<br />    end<br />  end<br /></pre><br /><br />The actual whenever:update_crontab task just does the same the command line does but unless you add <span style="font-family: 'courier new';">config.gem 'whenever'</span> to your environment (which I don't since whenever is not needed by my app at runtime) we also have the other task that loads whenever and chronic from the vendor/gems directory.<br /><br />At this point we've gotten Capistrano calling a rake task to invoke whenever even though the gem is localized in my application but not installed on the server.<br /><br /><h2>How administrators can use capistrano to both schedule and unschedule your jobs</h2><br /><br />The whenever gem does not have any support for unscheduling but it will schedule whatever is included in your schedule.rb file so if that file tells it to schedule nothing that's the same as unscheduling.  Its easy to do that by wrapping the entire file with <span style="font-family: 'courier new';">unless ENV['UNSCHEDULE']</span> (remember the UNSCHEDULE parameter we passed in the Capfile?)<br /><br /><pre><br />  #config/schedule.rb<br />  unless ENV['UNSCHEDULE']<br /><br />    module MyApp<br />      module Job<br />        class CronRakeTask < Whenever::Job::Default<br />          def output<br />            path_required<br />            "cd #{@path} && /usr/bin/env /usr/local/bin/cron_rake #{task} SOME_CONFIGURATION=#{ENV['SOME_CONFIGURATION']} RAILS_ENV=#{@environment}"<br />          end      <br />        end<br />      end<br />    end<br /><br />    set :path,        ENV['APP_PATH'] || RAILS_ROOT <br />    set :environment, RAILS_ENV || 'production'<br />    every 1.day, :at => '10:00pm' do<br />      command 'do_something', :class       => MyApp::Job::CronRakeTask, <br />                              :environment => @environment, <br />                              :path        => @path<br />    end<br />  end<br /></pre><br /><br />What's going on with the weird CronRakeTask?  This brings us to the final point<br /><br /><h2>How to use a library such as the Oracle client that requires certain environment variables</h2><br /><br />Cron loads its environment settings differently than an interactive shell and typically does not have all the environment variables you may have in your profile file.  You could solve this by adding them to the top of your crontab file but I prefer to leave that file as simple as possible and create a wrapper script to call instead of rake.  Basically the CronRakeTask does the same as Whenever's built in <a href="http://github.com/javan/whenever/blob/master/lib/job_types/rake_task.rb">RakeTask</a> except it calls <span style="font-family: 'courier new';">/usr/local/bin/cron_rake</span> instead of <span style="font-family: 'courier new';">rake</span>.  <br /><br />The cron_rake file just sets the environment variables I need then calls rake.<br /><br /><pre><br />  #!/bin/bash<br /><br />  export PATH=/usr/local/lib/ruby-enterprise/bin:$PATH<br />  export ORACLE_HOME=/opt/oracle<br />  export LD_LIBRARY_PATH=/opt/oracle:$LD_LIBRARY_PATH<br /><br />  rake $@<br /></pre><br /><br />As I said in the beginning since I've been using the Whenever gem I no longer need to manually edit my crontab files ever and I can enable my jobs as part of my normal deployment process.  Its wonderful and I think everyone should use it!<div class="blogger-post-footer"><img width='1' height='1' src='https://blogger.googleusercontent.com/tracker/86313661235162475-6650565045193086208?l=www.alexrothenberg.com' alt='' /></div>
+<p>
+  I've been using <a href="http://github.com/javan/whenever">Javan's Whenever gem</a> to manage scheduled jobs in my project and its fantastic!! There are many existing resources where you can learn more (<a href="http://github.com/javan/whenever">readme</a>, <a href="http://railscasts.com/episodes/164-cron-in-ruby">railscast</a> <a href="http://groups.google.com/group/whenever-gem">google group</a>) but I'd like to describe the specific way I'm using it<br>
+</p>
+<ul>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>When the gem is not installed on my server
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>How administrators can use Capistrano to both schedule and unschedule your jobs
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+  <li>How to use a library such as the Oracle client that requires certain environment variables
+  </li>
+  <li style="list-style: none">
+    <br>
+  </li>
+</ul>
+<p>
+  <br>
+  <br>
+  At the end of the day we want to have 2 capistrano tasks we can run to have cron call a rake task of ours on the schedule we want.<br>
+  <br>
+</p>
+
+<pre>
+  cap schedule_jobs
+  cap unschedule_jobs
+</pre>
+
+<p>
+  <br>
+  <br>
+  If we want to get fancy and pass a custom configuration argument that will be passed into the rake task.<br>
+</p>
+
+<pre>
+  cap schedule_jobs SOME_CONFIGURATION=false
+</pre>
+
+<p>
+  <br>
+  <br>
+</p>
+<h2>
+  When the gem is not installed on my server
+</h2>
+<p>
+  <br>
+  Let's start with the Capfile<br>
+</p>
+
+{% highlight ruby %}
+#Capfile
+desc "Schedule the jobs"
+task :schedule_job, :roles => :app, :only => { :primary => true } do
+  some_configuration = ENV['SOME_CONFIGURATION'] || true #default to true
+  arguments = ["RAILS_ENV=#{rails_env}",
+               "APP_PATH=#{current_path}",
+               "SOME_CONFIGURATION=#{some_configuration}"].join(' ')
+  run "cd #{current_path} && #{rake} whenever:update_crontab #{arguments}"
+end
+
+desc "Unschedule the jobs"
+task :unschedule_job, :roles => :app, :only => { :primary => true } do
+  run "cd #{current_path} && #{rake} whenever:update_crontab  UNSCHEDULE=true"
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  How does this differ from the <a href="http://github.com/javan/whenever/blob/master/README.rdoc">example</a> on the whenever site? Since the gem is not installed on the server we cannot call whenever from the command line so invoke the whenever:update_crontab rake task instead and to allow administrators to easily disable the scheduled jobs we define the unschedule_jobs capistrano task. Let's take a look at the <span style="font-family: 'courier new';">whenever:update_crontab</span> Rake task that gets this all done.<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+#lib/tasks/whenever.rake
+namespace :whenever do
+  desc "updates crontab with our scheduled jobs"  
+  task :update_crontab => :load_whenever_gem do     
+    Whenever::CommandLine.execute({:update=>true, :identifier=>'YOUR_APP_NAME'})
+  end
+
+  task :load_whenever_gem do     
+    begin
+      gem_dir_root = "#{RAILS_ROOT}/vendor/gems/"
+      chronic_gem_dir = Dir["#{RAILS_ROOT}/vendor/gems/*"].detect do |subdir|
+        subdir.gsub(gem_dir_root,"") =~ /^(\w+-)?chronic-(\d+)/ && File.exist?("#{subdir}/lib/chronic.rb")
+      end
+      require "#{chronic_gem_dir}/lib/chronic"
+
+      whenever_gem_dir = Dir["#{RAILS_ROOT}/vendor/gems/*"].detect do |subdir|
+        subdir.gsub(gem_dir_root,"") =~ /^(\w+-)?whenever-(\d+)/ && File.exist?("#{subdir}/lib/whenever.rb")
+      end
+      require "#{whenever_gem_dir}/lib/whenever"
+
+    rescue MissingSourceFile => e
+      raise "Cannot find Whenever or Chronic : #{e}"
+    end
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  The actual whenever:update_crontab task just does the same the command line does but unless you add <span style="font-family: 'courier new';">config.gem 'whenever'</span> to your environment (which I don't since whenever is not needed by my app at runtime) we also have the other task that loads whenever and chronic from the vendor/gems directory.<br>
+  <br>
+  At this point we've gotten Capistrano calling a rake task to invoke whenever even though the gem is localized in my application but not installed on the server.<br>
+  <br>
+</p>
+<h2>
+  How administrators can use capistrano to both schedule and unschedule your jobs
+</h2>
+<p>
+  <br>
+  <br>
+  The whenever gem does not have any support for unscheduling but it will schedule whatever is included in your schedule.rb file so if that file tells it to schedule nothing that's the same as unscheduling. Its easy to do that by wrapping the entire file with <span style="font-family: 'courier new';">unless ENV['UNSCHEDULE']</span> (remember the UNSCHEDULE parameter we passed in the Capfile?)<br>
+  <br>
+</p>
+
+{% highlight ruby %}
+#config/schedule.rb
+unless ENV['UNSCHEDULE']
+
+  module MyApp
+    module Job
+      class CronRakeTask < Whenever::Job::Default
+        def output
+          path_required
+          "cd #{@path} && /usr/bin/env /usr/local/bin/cron_rake #{task} SOME_CONFIGURATION=#{ENV['SOME_CONFIGURATION']} RAILS_ENV=#{@environment}"
+        end      
+      end
+    end
+  end
+
+  set :path,        ENV['APP_PATH'] || RAILS_ROOT 
+  set :environment, RAILS_ENV || 'production'
+  every 1.day, :at => '10:00pm' do
+    command 'do_something', :class       => MyApp::Job::CronRakeTask, 
+                            :environment => @environment, 
+                            :path        => @path
+  end
+end
+{% endhighlight %}
+
+<p>
+  <br>
+  <br>
+  What's going on with the weird CronRakeTask? This brings us to the final point<br>
+  <br>
+</p>
+<h2>
+  How to use a library such as the Oracle client that requires certain environment variables
+</h2>
+<p>
+  <br>
+  <br>
+  Cron loads its environment settings differently than an interactive shell and typically does not have all the environment variables you may have in your profile file. You could solve this by adding them to the top of your crontab file but I prefer to leave that file as simple as possible and create a wrapper script to call instead of rake. Basically the CronRakeTask does the same as Whenever's built in <a href="http://github.com/javan/whenever/blob/master/lib/job_types/rake_task.rb">RakeTask</a> except it calls <span style="font-family: 'courier new';">/usr/local/bin/cron_rake</span> instead of <span style="font-family: 'courier new';">rake</span>.<br>
+  <br>
+  The cron_rake file just sets the environment variables I need then calls rake.<br>
+  <br>
+</p>
+
+<pre>
+#!/bin/bash
+
+export PATH=/usr/local/lib/ruby-enterprise/bin:$PATH
+export ORACLE_HOME=/opt/oracle
+export LD_LIBRARY_PATH=/opt/oracle:$LD_LIBRARY_PATH
+
+rake $@
+</pre>
+
+<p>
+  <br>
+  <br>
+  As I said in the beginning since I've been using the Whenever gem I no longer need to manually edit my crontab files ever and I can enable my jobs as part of my normal deployment process. Its wonderful and I think everyone should use it!
+</p>
