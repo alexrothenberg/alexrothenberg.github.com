@@ -5,9 +5,10 @@ layout: master
 
 <div class="posts">
   {% for post in site.posts %}
-    <div class="post_summary">
-      <span class="post_date">{{ post.date | date_to_string }}</span>
-      <a class="post_title" href="{{ post.url }}">{{ post.title }}</a>
+    <div class="post">
+      <div class="title"><a href="{{ post.url }}">{{ post.title }}</a></div>
+      <div class="date">{{ post.date | date: "%B %d, %Y" }}</div>
+      <div class="extract">{{post.content | strip_html | truncatewords:80}}</div>
     </div>
   {% endfor %}
 </div>

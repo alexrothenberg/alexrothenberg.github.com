@@ -1,32 +1,78 @@
 body {
+  background-color: #AAAAAA;
 }
 
 #site {
 	width: 1000px;
 	margin: 0px auto;
+	background: #FFFFFF;
 }
 
 #header {
-  height: 140px;
+  height: 100px;
+  background: #dddddd;
 }
 #header h1 {
   float: left;
   width: 500px;
+	font-size: 48px;
+	margin-left: 20px;
 }
-.post_summary .post_date {
-	font-family: Courier;
-}
-#header menu {
+#header #menu {
   float: right;
+  margin: 10px;
+}
+#header #menu a {
+  display: block;
+  float: left;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 35px;
+  vertical-align: bottom;
+  text-align: center;
+}
+#about_me {
+/*  background-image: url(https://secure.gravatar.com/avatar/f4252ea05ddfbeb7b1803e9941ea46aa?s=40);*/
 }
 
 #footer {
-	padding-top: 50px;
+	margin: 20px;
+	padding-bottom: 10px;
 }
+
+#content {
+  margin: 20px;
+}
+
 
 .post_summary {	padding-top: 10px; padding-left: 10px; }
 .posts {
-	padding-left: 20px;
+/*  padding-left: 20px;
+*/}
+.posts .post .title {
+	margin-top: 30px;
+	font-size: 24px;
+}
+.posts .post .date {
+	margin-left: 15px;
+	font-style: italic;
+	font-size: 16px;
+}
+.posts .post .extract {
+	margin-top: 10px;
+	margin-left: 15px;
+	font-size: 16px;
+}
+
+.post pre {
+  background-color: #F5F6E7;
+}
+
+.date {
+	
+}
+.post {
+	
 }
 
 .repo {
