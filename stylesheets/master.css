@@ -44,6 +44,20 @@ body {
   margin: 20px;
 }
 
+.left {
+  float: left;
+}
+.right {
+  float: right;
+}
+.clearfix::after {
+  clear: both;
+  content: ' ';
+  display: block;
+  font-size: 0px;
+  height: 0px;
+  visibility: hidden;
+}
 
 .posts,
 .projects {
