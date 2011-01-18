@@ -56,7 +56,7 @@ time: 2009-01-09 15:10:00.002000 -05:00
   Now I'm ready to implement an action in the Friend Controller that receives a posted form with a list of friend requests to accept and reject. I might first go into my <span style="font-family: courier new;">friends_controller_spec.rb</span> and write something like<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>describe FriendController do<br>  it 'should approve one friend requests' do<br>    post :update_requests, :approved_requests =&gt; ['123']<br>    response.should be_redirect<br>    response.should redirect_to(:back)<br>    flash[:notice].should  == "Friend requests approved."<br>  end<br>end<br>
 </pre>
 <p>
@@ -65,7 +65,7 @@ time: 2009-01-09 15:10:00.002000 -05:00
   Now I have a failing test so I start implementing the code<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>class FriendController &lt; ApplicationController<br>  def update_requests<br>    FriendRequest.approve(params[:approve_requests])<br>    flash[:notice] = "User access changes saved."<br>    redirect_to :back<br>  end<br>end<br>
 </pre>
 <p>
@@ -74,7 +74,7 @@ time: 2009-01-09 15:10:00.002000 -05:00
   I'm done but my test is still failing...why? I haven't added the <span style="font-family: courier new;">approve</span> method to my <span style="font-family: courier new;">FriendRequest</span> model yet. I could go ahead and implement that method to get this test to pass but I don't want to do that because then this test would be testing more than just one unit. This is a unit test for the update_requests method of my FriendController and should be isolated from bugs in the rest of my application. Time to go back to the spec and add a mock to isolate this spec from the model and impose another expectation on my spec (that the method be called with the correct argument).<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>describe FriendController do<br>  it 'should approve one friend requests' do<br>    FriendRequest.expects(:approve).with(['123'])<br>    request.env['HTTP_REFERER'] = "http://some.site.com"<br>  <br>    post :update_requests, :approved_requests =&gt; ['123']<br>    response.should be_redirect<br>    response.should redirect_to(:back)<br>    flash[:notice].should  == "Friend requests approved."<br>  end<br>end<br>
 </pre>
 <p>

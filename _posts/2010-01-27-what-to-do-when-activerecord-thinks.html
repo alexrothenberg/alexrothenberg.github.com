@@ -24,7 +24,7 @@ end
   <br>
 </p>
 
-<pre>
+<pre class="old_code">
 $ script/console 
 Loading development environment (Rails 2.3.4)
 >> Person.first.id
@@ -52,7 +52,7 @@ Loading development environment (Rails 2.3.4)
   We see that ActiveRecord is treating this column as a <code>:decimal</code> because it's sql_type is <code>NUMBER</code>. It turns out this is correct because an Oracle number is a decimal unless you specify it to have 0 digits after the decimal point (scale of 0). Here's the <a href="http://download.oracle.com/docs/cd/B19306_01/server.102/b14220/datatype.htm#i16209">documentation from Oracle</a> (the last sentence is my bold)
 </p>
 
-<pre>
+<pre class="old_code">
 NUMBER Datatype
 
 The NUMBER datatype stores fixed and floating-point numbers. Numbers of virtually any magnitude can be stored and are guaranteed portable among different systems operating Oracle, up to 38 digits of precision.
@@ -85,7 +85,7 @@ In this case, the precision is 38, and the specified scale is maintained.
   Let's look in my database and sure enough the ID is a number<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 $ sqlplus myusername/mypassword@localhost:1521/mydatabase.world
 SQL*Plus: Release 10.2.0.4.0 - Production on Wed Jan 27 09:15:09 2010
 Copyright (c) 1982, 2007, Oracle.  All Rights Reserved.
@@ -105,7 +105,7 @@ NAME                 VARCHAR2(10)
   If you are allowed to change your database you can create a migration like<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>$ script/generate migration change_person_id_to_integer<br>STUBBING MckinseyLDAP<br>      exists  db/migrate<br>      create  db/migrate/20100127145747_change_person_id_to_integer.rb<br>
 </pre>
 <p>
@@ -159,7 +159,7 @@ end
   We defined a method <code>set_integer_columns</code> that will force ActiveRecord to treat the columns we specify as integers. In our Person model we declare <code>:id</code> is an integer column. Let's test it out!<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 $ script/console 
 Loading development environment (Rails 2.3.4)
 >> Person.first.id

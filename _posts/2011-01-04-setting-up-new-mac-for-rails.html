@@ -22,7 +22,7 @@ time: 2011-01-04 14:53:00 -05:00
   <li>Homebrew for package management
     <ol>
       <li>Open a terminal and type<br>
-        <pre>
+        <pre class="old_code">
 ruby -e "$(curl -fsSL https://gist.github.com/raw/323731/install_homebrew.rb)
 </pre>
       </li>
@@ -35,14 +35,14 @@ ruby -e "$(curl -fsSL https://gist.github.com/raw/323731/install_homebrew.rb)
   <li>git &amp; github for development
     <ol>
       <li>Install GIT<br>
-        <pre>
+        <pre class="old_code">
 brew install git
 </pre>
       </li>
       <li>create ssh keys and add to github following <a href="http://help.github.com/mac-key-setup/">these instructions</a>
       </li>
       <li>Configure git<br>
-        <pre>
+        <pre class="old_code">
 git config --global user.name "Alex Rothenberg"<br>git config --global user.email "alex@alexrothenberg.com"<br>git config --global color.ui true
 </pre>
       </li>
@@ -56,12 +56,12 @@ git config --global user.name "Alex Rothenberg"<br>git config --global user.emai
         <a href="http://rvm.beginrescueend.com/rvm/install/">Install rvm</a>
       </li>
       <li>add bundler to ~/.rvm/gemsets/global.gems and install it<br>
-        <pre>
+        <pre class="old_code">
 echo bundler &gt;&gt; ~/.rvm/gemsets/global.gems<br>gem install bundler<br>
 </pre>
       </li>
       <li>install Ruby 1.8.7 and make it default<br>
-        <pre>
+        <pre class="old_code">
 rvm install 1.8.7<br>rvm --default 1.8.7
 </pre>
       </li>
@@ -72,19 +72,19 @@ rvm install 1.8.7<br>rvm --default 1.8.7
   <li>Databases
     <ol>
       <li>MySQL<br>
-        <pre>
+        <pre class="old_code">
 brew install mysql
 </pre>
       </li>
       <li>Oracle (this is complicated but works if you follow the directions <b>exactly</b> TO THE LETTER without missing a single step!) <a href="http://blog.rayapps.com/2009/09/14/how-to-install-oracle-database-10g-on-mac-os-x-snow-leopard/">http://blog.rayapps.com/2009/09/14/how-to-install-oracle-database-10g-on-mac-os-x-snow-leopard/</a>. Then I did have to run these extra commands<br>
         <ol>
           <li>Add oracle env settings to my user<br>
-            <pre>
+            <pre class="old_code">
 #.bashrc<br>## ORACLE <br>export ORACLE_HOME=/Users/oracle/oracle/product/10.2.0/db_1<br>export DYLD_LIBRARY_PATH=$ORACLE_HOME/lib<br>export ORACLE_SID=orcl<br>PATH=$PATH:$ORACLE_HOME/bin
 </pre><br>
           </li>
           <li>Enable me to access the oracle files<br>
-            <pre>
+            <pre class="old_code">
 sudo dscl localhost -append /Local/Default/Groups/oinstall GroupMembership alex
 </pre>
           </li>
@@ -99,7 +99,7 @@ sudo dscl localhost -append /Local/Default/Groups/oinstall GroupMembership alex
   <br/>
   <li>Test with a project
     <br/>
-    <pre>
+    <pre class="old_code">
 git clone git://github.com/alexrothenberg/legacy_data.git
 cd legacy_data
 export MYSQL

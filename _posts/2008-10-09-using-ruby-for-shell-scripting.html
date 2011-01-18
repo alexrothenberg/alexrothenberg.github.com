@@ -15,7 +15,7 @@ time: 2008-10-09 08:26:00.003000 -04:00
   Suddenly I realized I could do this with Ruby. About 10 minutes later I had this simple 3 line script, ran it and was done.<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>  Dir[File.expand_path("#{~/file_with_spaces}/*")].uniq.sort.each do |file|<br>    system "mv '#{file}' '#{file.gsub(' ', '_')}'"<br>  end<br>
 </pre>
 <p>

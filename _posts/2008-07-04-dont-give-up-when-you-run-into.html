@@ -16,7 +16,7 @@ time: 2008-07-04 14:36:00.016000 -04:00
   <br>
   First I setup my models to call into the report generator every time they change<br>
 </p>
-<pre>
+<pre class="old_code">
 <span style="font-family:courier new;"><br>class Person &lt; ActiveRecord::Base<br>  after_destroy {|person| ReportGenerator::Person.destroyed(person)}<br>  after_create  {|person| ReportGenerator::Person.created(person)  }<br>  after_update  {|person| ReportGenerator::Person.updated(person)  }<br>end<br></span>
 </pre>
 <p>
@@ -25,7 +25,7 @@ time: 2008-07-04 14:36:00.016000 -04:00
   Then I implement the complicated (and slow) logic to pre-compute the rows in the report in a library class<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <span style="font-family:courier new;"><br>module ReportGenerator<br>  class Executive<br>    def destroyed(executive)<br>      #figure out which rows to delete from the report and persist with the Report model<br>    end<br>    def created(executive)<br>      #figure out which rows to add to the report and persist with the Report model<br>    end<br>    def updated(executive)<br>      #figure out which rows to update in the report and persist with the Report model<br>    end<br>  end<br>  #Similar classes corresponding to the other models that trigger recalculations would go here<br>end<br></span>
 </pre>
 <p>
@@ -35,7 +35,7 @@ time: 2008-07-04 14:36:00.016000 -04:00
   <br>
   Model:<br>
 </p>
-<pre>
+<pre class="old_code">
 <span style="font-family:courier new;"><br>class Report &lt; ActiveRecord::Base<br>end<br></span>
 </pre>
 <p>
@@ -43,7 +43,7 @@ time: 2008-07-04 14:36:00.016000 -04:00
   <br>
   Controller:<br>
 </p>
-<pre>
+<pre class="old_code">
 <span style="font-family:courier new;"><br>class ReportsController &lt; ApplicationController<br> @report =" ReportRows.find_by_user(current_user)"&gt;<br></span>
 </pre>
 <p>
@@ -52,7 +52,7 @@ time: 2008-07-04 14:36:00.016000 -04:00
   and the View:<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <span style="font-family:courier new;"><br><% for row in @report %><br>  Display the row<br><% end %><br></span>
 </pre>
 <p>

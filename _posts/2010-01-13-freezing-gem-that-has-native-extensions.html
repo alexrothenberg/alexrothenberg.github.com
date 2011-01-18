@@ -12,7 +12,7 @@ time: 2010-01-13 16:30:00 -05:00
   <br>
   First tell Rails about your gem by adding a config.gem line to your environment.rb<br>
 </p>
-<pre>
+<pre class="old_code">
 <br>Rails::Initializer.run do |config|<br>  ...<br>  config.gem 'hpricot'<br>  ...<br>end<br>
 </pre>
 <p>
@@ -21,7 +21,7 @@ time: 2010-01-13 16:30:00 -05:00
   Now we can ask rails about its configured gems<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>  $ rake gems<br>  (in /Users/alexrothenberg/ruby/my_project)<br>   - [I] hpricot <br><br>   I = Installed<br>   F = Frozen<br>   R = Framework (loaded before rails starts)<br>
 </pre>
 <p>
@@ -32,7 +32,7 @@ time: 2010-01-13 16:30:00 -05:00
   To freeze the gem into your vendor directory run <span style="font-family:Courier new">rake gems:unpack</span> (optionally you can add 'GEM=hpricot' if you just want to unpack one gem).<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>  $ rake gems:unpack <br>  (in /Users/alexrothenberg/ruby/my_project)<br>  Unpacked gem: '/Users/alexrothenberg/ruby/my_project/vendor/gems/hpricot-0.8.2'<br>
 </pre>
 <p>
@@ -41,7 +41,7 @@ time: 2010-01-13 16:30:00 -05:00
   We can ask rails again...<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>  $ rake gems<br>  (in /Users/alexrothenberg/ruby/my_project)<br>  The following gems have native components that need to be built<br>    hpricot  <br><br>  You're running:<br>    ruby 1.8.6.287 at /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby<br>    rubygems 1.3.2 at /Users/alexrothenberg/.gem/ruby/1.8, /Library/Ruby/Gems/1.8, /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/gems/1.8<br><br>  Run `rake gems:build` to build the unbuilt gems.<br>
 </pre>
 <p>
@@ -50,7 +50,7 @@ time: 2010-01-13 16:30:00 -05:00
   Oops our vendored gem is missing hasn't built the native extensions. Not to worry the message tells us what to do and we run <span style="font-family:Courier new">rake gems:build</span><br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>  $ rake gems:build<br>  (in /Users/alexrothenberg/ruby/my_project)<br>  Built gem: '/Users/alexrothenberg/ruby/mars-admin/vendor/gems/hpricot-0.8.2'<br>  alex-rothenbergs:mars-admin alexrothenberg$ rake gems<br>  (in /Users/alexrothenberg/ruby/my_project)<br>   - [F] hpricot <br><br>  I = Installed<br>  F = Frozen<br>  R = Framework (loaded before rails starts)<br>
 </pre>
 <p>
@@ -59,7 +59,7 @@ time: 2010-01-13 16:30:00 -05:00
   We can ask rails again to see that the gem is now frozen and also look in our vendor folder<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>  $ rake gems<br>  (in /Users/alexrothenberg/ruby/my_project)<br>   - [F] hpricot <br><br>  I = Installed<br>  F = Frozen<br>  R = Framework (loaded before rails starts)<br>  <br>  $ ls vendor/gems/hpricot-0.8.2/<br>  total 72<br>  -rw-r--r--   1 alexrothenberg  staff  4672 Jan 13 12:33 CHANGELOG<br>  -rw-r--r--   1 alexrothenberg  staff  1048 Jan 13 12:33 COPYING<br>  -rw-r--r--   1 alexrothenberg  staff  9216 Jan 13 12:33 README<br>  -rw-r--r--   1 alexrothenberg  staff  8242 Jan 13 12:33 Rakefile<br>  drwxr-xr-x   4 alexrothenberg  staff   136 Jan 13 12:33 ext/<br>  drwxr-xr-x   3 alexrothenberg  staff   102 Jan 13 12:33 extras/<br>  drwxr-xr-x   6 alexrothenberg  staff   204 Jan 13 12:39 lib/<br>  drwxr-xr-x  11 alexrothenberg  staff   374 Jan 13 12:33 test/<br>
 </pre>
 <p>
@@ -71,7 +71,7 @@ time: 2010-01-13 16:30:00 -05:00
   To be safe, we need to rebuild the native extensions on the server when we deploy. This is not as hard as it sounds as rails gave us the rake task <span style="font-family:Courier new">rake gems:build</span>. We can ask capistrano to run that command on the server by adding the following to your <span style="font-family:Courier new">Capfile</span>.<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>after "deploy:finalize_update" do<br>  # build the native extensions for hpricot gem<br>  run "cd #{release_path} &amp;&amp; #{rake} RAILS_ENV=#{rails_env} gems:build GEM=hpricot"<br>end<br>
 </pre>
 <p>
@@ -80,7 +80,7 @@ time: 2010-01-13 16:30:00 -05:00
   Now when capistrano deploys in with all the other messages you'll see something like<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>  ...<br>  * executing "cd /opt/apps/my_project/releases/20100108185109 &amp;&amp; rake RAILS_ENV=production gems:build"<br>     servers: ["your.server.com"]<br>     [your.server.com] executing command<br>  ** [out :: your.server.com] (in /opt/apps/my_project/releases/20100108185109)<br>  ** [out :: your.server.com] Built gem: '/opt/apps/my_project/releases/20100108185109/vendor/gems/hpricot-0.8.2'<br>     command finished<br>  ...   <br>
 </pre>
 <p>

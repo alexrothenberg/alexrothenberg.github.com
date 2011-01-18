@@ -11,7 +11,7 @@ time: 2008-12-06 19:39:00.002000 -05:00
   If you have a handler that uses memoization to cache some information in instance variables such as this (I'm not sure if this is a smell but my project has some examples of it)<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>module UsersHelper<br> def all_users<br>   @users ||= User.find(:all)<br> end<br>end<br>
 </pre>
 <p>
@@ -19,7 +19,7 @@ time: 2008-12-06 19:39:00.002000 -05:00
   <br>
   You would expect this spec to work<br>
 </p>
-<pre>
+<pre class="old_code">
 <br>describe UsersHelper do<br> it "should find all users" do<br>   User.expects(:find).with(:all).returns(result=mock)<br>   helper.all_users.should == result<br> end<br>end<br>
 </pre>
 <p>

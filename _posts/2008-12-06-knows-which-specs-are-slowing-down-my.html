@@ -8,7 +8,7 @@ time: 2008-12-06 18:41:00.004000 -05:00
   I often watch my specs run with the ........'s marching across my terminal and sometimes it seems to pause as it hits a particularly slow one. I figure there's some poorly written spec that's slowing my entire suite down and I <span style="font-style:italic;">should</span> figure out what it is and fix it. But I rarely (if ever) take the time to track down the offender so never fix it. I just discovered that the clever folks writing rspec have taken away my excuse for laziness. I can tell it to report on the slowest specs by putting a line in my spec.opts file telling it to use the ProfileFormatter (see the first line below)<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>--format profile<br>--colour<br>--loadby mtime<br>--reverse<br>
 </pre>
 <p>
@@ -17,7 +17,7 @@ time: 2008-12-06 18:41:00.004000 -05:00
   For example running the specs on my current project I get this output.<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br>Profiling enabled.<br>........(a bunch more dots)<br><br>Top 10 slowest examples:<br>2.4908950 WikiContent should find all activity for a user<br>0.8061750 WikiContent should find recent activity for a user in last 15 days<br>0.2438460 WikiContent::Version should allow limit on results from finding recent activity<br>0.1821710 User should have a list of owned content<br>0.1700670 WikiContent should find results if access type is not same as role of the user but role of user is 'Leader'<br>0.1593900 ContentsController allows PUT request to 'update' action for 'member' role<br>0.1514150 Search::SearchResponse gets the wiki content id of an asset from the xml response<br>0.1470310 Content should always allow leaders to see all pages<br>0.1394920 Page should delete all comments when destroyed<br>0.1370330 ContentsController should save content and create the uploaded asset on successful POST to the 'create' action<br>
 </pre>
 <p>

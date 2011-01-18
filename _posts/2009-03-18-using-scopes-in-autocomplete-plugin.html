@@ -82,6 +82,6 @@ end
   Originally, it used passed the find_options hash to the block and then executed the search in one step as "@items = object.to_s.camelize.constantize.find(:all, find_options)". My change is to rely on ActiveRecord proxy objects to chain criteria together leaving the block independent of the criteria here in the plugin. The best part is you don't have to worry about performance as ActiveRecord will intelligently combine the criteria into a single SQL request. For example searching for tasks that start with 'tas' within project #7<br>
   <br>
 </p>
-<pre>
+<pre class="old_code">
 <br> User Load (1.2ms)   SELECT * FROM `tasks` WHERE ((`tasks`.`project_id` = '7') AND (LOWER(name) LIKE '%tas%'))  ORDER BY name ASC LIMIT 10<br>
 </pre>

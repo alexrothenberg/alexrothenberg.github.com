@@ -25,16 +25,15 @@ time: 2008-07-23 20:18:00.004000 -04:00
   <div>
     We start with a form with a big text area and submit button and an area to show any errors we may encounter while parsing<br>
   </div>
-  <pre>
-<br><% form_tag do -%><br> Paste your Excel data : <%= text_area_tag :data, @data %><br> Click to validate the data <%= submit_tag 'Validate' %><br><br> &lt;ul&gt;<br> <% @errors.each do |error| %><br>  &lt;li&gt;&lt;span &gt;<%=error%>&lt;/span&gt;&lt;/li&gt;<br><br> <% end unless @errors.blank? -%><br> &lt;/ul&gt;<br>
+<pre class="old_code"><br><% form_tag do -%><br> Paste your Excel data : <%= text_area_tag :data, @data %><br> Click to validate the data <%= submit_tag 'Validate' %><br><br> &lt;ul&gt;<br> <% @errors.each do |error| %><br>  &lt;li&gt;&lt;span &gt;<%=error%>&lt;/span&gt;&lt;/li&gt;<br><br> <% end unless @errors.blank? -%><br> &lt;/ul&gt;<br>
 </pre>
   <div>
     Then the controller action which let's the model parse the text and only saves if every person model is valid.<br>
-    <pre>
+    <pre class="old_code">
 class PeopleController &lt;  ApplicationController<br> def import<br>  @errors = []<br>  people = Person.all_from_tab_delimited_text(params[:data])<br><br>  people.each  do |person|<br>   person.errors.each { |error| @errors &lt;&lt; "#{error} on #{person.inspect}"} unless person.valid?<br>  end<br> end<br>end 
 </pre>Now we move onto the Person model where the parsing actually takes place<br>
     class<br>
-    <pre>
+    <pre class="old_code">
 class Person &lt; ActiveRecord::Base<br>def Person.all_from_tab_delimited_text(data)<br> people = []<br> CSV::Reader.parse(@data, "\t") do |row|<br>  person = Person.new(:first_name"&gt; row[0], :last_name =&gt; row[1])<br>  people &lt;&lt; person<br> end<br> people<br>end<br>end<br>
 </pre>We now have a working allbeit simple implementation that even does some simple error checking to give the user feedback if their data cannot be imported. Of course the example here is simple and the real system has additional features and complexity that I didn't show here. Some of these are<br>
     <ul>
@@ -46,13 +45,13 @@ class Person &lt; ActiveRecord::Base<br>def Person.all_from_tab_delimited_text(d
       </li>
     </ul><span style="font-weight: bold;">Downloading data from our app into Excel</span><br>
     Moving data in this direction was even easier as we just relied on the fact that Excel will open csv files as long as our Rails app returns an Excel MIME type. We add a line to register the mime type with the csv extension<br>
-    <pre>
+    <pre class="old_code">
 # config/initializers/mime_types.rb<br>Mime::Type.register 'application/vnd.ms-excel', :csv<br>
 </pre>Then we had to do for this was add a respond_to.xsl in the appropriate places of our controller<br>
-    <pre>
+    <pre class="old_code">
 class PeopleController &lt; ApplicationController<br>def index<br> people = Person.all<br> respond_to do |format|<br>  format.html # index.html.erb<br>  format.csv  do<br>   render :text =&gt; @people.collect { |person| person.to_csv}.join("\n")<br>  end<br> end<br>end<br>
 </pre>and then add a <span style="font-family:courier new;">to_csv</span> to the model<br>
-    <pre>
+    <pre class="old_code">
 class Person &lt; ActiveRecord::Base<br>def to_csv<br> "#{first_name}\t#{last_name}"<br>end<br>end
 </pre><br>
     This only works for very simple Excel data on a single worksheet but when that's true it makes your job of working with that data so much simpler!<br>

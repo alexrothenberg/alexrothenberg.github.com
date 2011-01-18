@@ -15,7 +15,7 @@ time: 2009-05-21 16:55:00 -04:00
   First let's look at how easy it is to work with dates when you can follow the Rails Way. Let's create a new project and add a scaffolded Person object with a date attribute called birthday.<br>
 </p>
 
-<pre>
+<pre class="old_code">
 rails date_select_example
 cd date_select_example
 script/generate scaffold person name:string birthday:date
@@ -78,7 +78,7 @@ end
   Now what happens when you run into a case where the date is stored as a string in the database. Let's say we have an "anniversary" attribute stored as a string that we want to treat the same way as we did birthday. We create the migration.<br>
 </p>
 
-<pre>
+<pre class="old_code">
 script/generate migration AddAnniversaryToPerson anniversary:string
 rake db:migrate
 </pre>
@@ -124,7 +124,7 @@ rake db:migrate
   <br>
 </p>
 
-<pre>
+<pre class="old_code">
 ActiveRecord::MultiparameterAssignmentErrors in PeopleController#update
 
 1 error(s) on assignment of multiparameter attributes
@@ -178,7 +178,7 @@ Request Parameters:
   <br>
 </p>
 
-<pre>
+<pre class="old_code">
   $ script/console
   Loading development environment (Rails 2.3.2)
   >> Person.columns_hash['birthday']
