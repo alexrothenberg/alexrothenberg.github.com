@@ -45,25 +45,35 @@ body {
 }
 
 
-.post_summary {	padding-top: 10px; padding-left: 10px; }
-.posts {
-/*  padding-left: 20px;
-*/}
-.posts .post .title {
+.posts,
+.projects {
+/*  padding-left: 20px;*/
+}
+.posts    .post    .title,
+.projects .project .title {
 	margin-top: 30px;
 	font-size: 24px;
 }
-.posts .post .date {
+.posts    .post    .date,
+.projects .project .date {
 	margin-left: 15px;
-	font-style: italic;
 	font-size: 16px;
 }
-.posts .post .extract {
+.posts    .post    .extract,
+.projects .project .extract {
 	margin-top: 10px;
 	margin-left: 15px;
 	font-size: 16px;
 }
 
+
+.post h1 {
+	margin-bottom: 0px;
+}
+
+.date {
+	font-style: italic;
+}
 .post pre.old_code {
   background-color: #F5F6E7;
 }

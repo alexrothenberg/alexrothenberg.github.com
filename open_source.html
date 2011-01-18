@@ -3,41 +3,51 @@ layout: master
 title: Alex Rothenberg
 ---
 
-<div class='home_box' id='home_left'>
-  <h2>Some of my Open Source Projects</h2>
-  <div id='github-projects'>See them on <a href="https://github.com/alexrothenberg">github</a></div>
-</div>
+<h1>My Open Source projects</h1>
 
-<script type="text/javascript" charset="utf-8">
-  $.githubUser('alexrothenberg', function(data) {
-    $('#github-projects').html('');
+<div class="projects">
+  <div class="project">
+    <div class="title"><a href="https://github.com/patshaughnessy/code_buddy/">Code Buddy</a></div>
+    <div class="extract">
+      <p>Make your stack come alive!</p>
+      
+      <p>CodeBuddy makes it easy for you to understand the code behind each line of a Ruby exception stack. When something goes wrong during development and you get an exception do you read through the stack trace and start opening files in VIM or TextMate? With CodeBuddy the stack trace and source files are all available in your browser making it easy to understand what’s going on.</p>
+    </div>
+  </div>
+
+  <div class="project">
+    <div class="title"><a href="https://github.com/ReliefHub/reliefhub">ReliefHub</a></div>
+    <div class="extract">
+      <p>Working with orphanages in third world countries.</p>
     
-    var repos = data.user.repositories;
-    repos.sort(function(a,b) {
-      return b.watchers - a.watchers;
-    });
+      <p>ReliefHub.org is a website that makes it easy for anyone to donate to a specific project at an orphanage that is in need of assistance. Orphanage Managers can post project requests for materials or services they require at their orphanage. Project requests can range from new mattresses for beds or art supplies, to clothing for children or even repairing a roof. Donors can browse project requests and donate any amount to their favorite projects. Once a project reaches its funding goal, a ReliefHub Project Coordinator ensures that the materials and/or services are delivered to the orphanage. The ReliefHub.org website will be updated with photos of the project taking place and a cost report showing how each dollar was spent. This process allows donors to connect directly to orphanage projects they are passionate about, giving them transparency into how their donation money is spent, and provides feedback on the project’s outcome.</p>
 
-    other_peoples_repos = [
-      {
-        "url": "https://github.com/patshaughnessy/code_buddy/",
-        "name": "code_buddy",
-        "description": "Make your stack come alive"
-      },
-      {
-        "url": "https://github.com/ReliefHub/reliefhub",
-        "name": "reliefhub",
-        "description": "Working with orphanages in third world countries."
-      }
-    ]
+      <p>The source code here can be modified so other non-profit organizations and fundraisers can use it for their needs.</p>
+    </div>
+  </div>
 
-    all_repos = other_peoples_repos.concat(repos)
+  <div class="project">
+    <div class="title"><a href="https://github.com/alexrothenberg/legacy_data">Legacy Data Gem</a></div>
+    <div class="extract">
+      <p>Create ActiveRecord models from an existing database.</p>
+      
+      <p>Getting started on a Rails project with a large existing database can be daunting. How to you extract all the information that's encoded in the database? Do you have to understand the entire data model before you get started? The models_from_tables generator in the legacy_data gem can help! This generator looks into your existing database and generates ActiveRecord models based on the information encoded in it.</p>
+    </div>
+  </div>
 
-    $(all_repos.slice(0,6)).each(function() {
-      $('#github-projects').append("\
-<div class='repo'>\
-  <h3><a href='" + this.url + "'>" + this.name + "</a></h3>\
-  <span class='desc'>"+this.description+"</span>\
-</div>");
-    });
-  });
-</script>
+  <div class="project">
+    <div class="title"><a href="https://github.com/alexrothenberg/waywework">WayWeWork.it</a></div>
+    <div class="extract">This is a simple blog aggregator we put together in a few days.  We put it together for the site <a href="http://waywework.it">waywework.it</a>
+    </div>
+  </div>
+
+  <div class="project">
+    <div class="title"><a href="https://github.com/alexrothenberg/tournament-draw">Tournament Draw</a></div>
+    <div class="extract">Manage a single-elimination tournament draw (like a tennis tournament or the NCAA March Madness).</div>
+  </div>
+
+  <div class="project">
+    <div class="title"><a href="https://github.com/alexrothenberg/testing-ajax-example">Testing Ajax Example</a></div>
+    <div class="extract">Example of testing autocomplete ajax without a browser using cucumber and webrat</div>
+  </div>
+</div>
