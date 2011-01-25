@@ -41,7 +41,9 @@ Loading development environment (Rails 2.3.4)
 
 {% highlight ruby %}
 >> Person.columns_hash['id']
-=> #<ActiveRecord::ConnectionAdapters::OracleEnhancedColumn:0x37391c0 @default=nil, @type=:decimal, @null=true, @name="id", @table_name="people", @scale=nil, @sql_type="NUMBER", @precision=nil, @primary=true, @forced_column_type=nil, @limit=nil>
+=> #<ActiveRecord::ConnectionAdapters::OracleEnhancedColumn:0x37391c0 @default=nil, @type=:decimal,
+   #   @null=true, @name="id", @table_name="people", @scale=nil, @sql_type="NUMBER", @precision=nil,
+   #   @primary=true, @forced_column_type=nil, @limit=nil>
 >> Person.columns_hash['id'].type
 => :decimal
 >> Person.columns_hash['id'].sql_type
@@ -55,7 +57,8 @@ Loading development environment (Rails 2.3.4)
 <pre class="old_code">
 NUMBER Datatype
 
-The NUMBER datatype stores fixed and floating-point numbers. Numbers of virtually any magnitude can be stored and are guaranteed portable among different systems operating Oracle, up to 38 digits of precision.
+The NUMBER datatype stores fixed and floating-point numbers. Numbers of virtually any magnitude can be stored and are
+guaranteed portable among different systems operating Oracle, up to 38 digits of precision.
 
 The following numbers can be stored in a NUMBER column:
   * Positive numbers in the range 1 x 10-130 to 9.99...9 x 10125 with up to 38 significant digits
