@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+unless ARGV[0]
+  puts 'Usage: newpost "the post title"'
+  exit(-1)
+end
+
+date_prefix = Time.now.strftime("%Y-%m-%d")
+post_name = ARGV.join ' '
+post_file_name = post_name.strip.downcase.gsub(/ /, '-')
+post = "/Users/alex/ruby/github/alexrothenberg.github.com/_posts/#{date_prefix}-#{post_file_name}.md"
+
+header = <<-END
+---
+layout: post
+title: #{post_name}
+---
+
+Write the "#{post_name}" content here...
+END
+
+File.open(post, 'w') do |f|
+  f << header
+end
+
+system("mate", "-a", post)
