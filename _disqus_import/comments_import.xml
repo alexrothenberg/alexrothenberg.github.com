@@ -1,0 +1,484 @@
+<?xml version="1.0"?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:wp="http://wordpress.org/export/1.0/" version="2.0">
+  <channel>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/11/05/generate-models-from-tables-legacy-data.html</link>
+      <title>http://www.alexrothenberg.com/2009/11/generate-models-from-tables-legacy-data.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2011/01/04/setting-up-new-mac-for-rails.html</link>
+      <title>http://www.alexrothenberg.com/2011/01/setting-up-new-mac-for-rails.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2010/10/11/combining-two-related-fields-in-url-to.html</link>
+      <title>http://www.alexrothenberg.com/2010/10/combining-two-related-fields-in-url-to.html</title>
+      <wp:comment>
+        <wp:comment_id>131437041</wp:comment_id>
+        <wp:comment_author>Niranjan</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://niranjansarade.blogspot.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-10-13 18:13:51</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[This is a very nice post ! I would definitely take a look at MessageVerifier which I was not aware before. Thanks Alex !]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2010/09/29/purging-old-cruise-builds.html</link>
+      <title>http://www.alexrothenberg.com/2010/09/purging-old-cruise-builds.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2010/09/24/use-dashes-not-underscores-in-your.html</link>
+      <title>http://www.alexrothenberg.com/2010/09/use-dashes-not-underscores-in-your.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2010/03/14/its-not-too-late-to-solve-y2k-bug-i.html</link>
+      <title>http://www.alexrothenberg.com/2010/03/its-not-too-late-to-solve-y2k-bug-i.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2010/01/27/what-to-do-when-activerecord-thinks.html</link>
+      <title>http://www.alexrothenberg.com/2010/01/what-to-do-when-activerecord-thinks.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2010/01/13/freezing-gem-that-has-native-extensions.html</link>
+      <title>http://www.alexrothenberg.com/2010/01/freezing-gem-that-has-native-extensions.html</title>
+      <wp:comment>
+        <wp:comment_id>131437059</wp:comment_id>
+        <wp:comment_author>Michael</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://lascarid.es</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-07-29 04:54:54</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Thanks so much for the info! It just solved my deployment issue on Dreamhost. I had somehow missed how useful "rake gems" is during deployment. I would also add that any gems which are indented in the gem list are dependencies and not automatically "unpacked". "rake gems:unpack:dependencies" does this. <br><br>This is the way all technical documents should be written, by the way. Clear, lucid, great examples. Well done.]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437062</wp:comment_id>
+        <wp:comment_author>Niranjan</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://niranjansarade.blogspot.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-01-14 11:10:03</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Thanks Alex for putting this. This will certainly help the entire rails community...]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/11/05/generate-models-from-tables-legacy-data.html</link>
+      <title>http://www.alexrothenberg.com/2009/11/generate-models-from-tables-legacy-data.html</title>
+      <wp:comment>
+        <wp:comment_id>131437068</wp:comment_id>
+        <wp:comment_author>headtunes2</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/04494928479509587523</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-12-21 18:52:02</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[is this working on rails 3? i get the following:<br>"The 'matthuhiggins-foreigner' gem has changed names to 'foreigner'"<br>"Install the renamed gem using 'gem install foreigner'"<br><br>can't get bundler to use foreigner tho.]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437069</wp:comment_id>
+        <wp:comment_author>Alex Rothenberg</wp:comment_author>
+        <wp:comment_author_email>alex@alexrothenberg.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.alexrothenberg.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-09-10 17:25:45</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[@Martijn - I've been remiss getting it to work with Rails 3.  I'll try to get it going in the next few weeks if I can find the time]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437071</wp:comment_id>
+        <wp:comment_author>Martijn</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/00834055437116203541</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-09-09 14:36:34</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Hi Alex<br><br>Looks promissing! I'm trying to make it work on Rails 3, but no luck so far...]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437073</wp:comment_id>
+        <wp:comment_author>Piemesons</wp:comment_author>
+        <wp:comment_author_email>jain.mohit27@gmail.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.blogger.com/profile/02761349060596164540</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-07-29 08:22:29</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Cool stuff.. thanks a lot]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437076</wp:comment_id>
+        <wp:comment_author>Alex Rothenberg</wp:comment_author>
+        <wp:comment_author_email>alex@alexrothenberg.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.alexrothenberg.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-03-05 16:06:13</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[@Puyo Thanks for catching that bug.  I had not tested with SQLServer so am glad if that's the only issue you ran into.<br><br>I pushed a fix up to the source on github and rereleased the gem as v0.1.11.  <br><br>Let me know if that doesn't fix the problem for you.]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437079</wp:comment_id>
+        <wp:comment_author>Puyo</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/15068578685922207921</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-03-05 00:17:02</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[I had to make one small modification to make this work with Ruby 1.9 and my SQLServer database:<br><br>legacy_data/schema.rb near line 132:<br><br>        @constraints[:custom],           @constraints[:inclusion_of]        = custom_constraints || []<br>        @constraints[:inclusion_of] ||= {}<br>        boolean_presence_columns.each {|col| @constraints[:inclusion_of][col] = "true, false" }<br>      end<br><br>(I added the line "@constraints[:inclusion_of] ||= {}")]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437080</wp:comment_id>
+        <wp:comment_author>alex</wp:comment_author>
+        <wp:comment_author_email>alex@alexrothenberg.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.alexrothenberg.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-02-08 21:29:57</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[I have been using this gem with Rails 2.3.4.  <br><br>I've heard that generators have changed a lot in Rails 3 so expect there may be some problems there but I haven't yet tried so am not sure.<br><br>Are you experiencing problems with a particular version of Rails?]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437084</wp:comment_id>
+        <wp:comment_author>Anonymous</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url/>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-02-08 20:38:35</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[wich rails version did you use ?]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437086</wp:comment_id>
+        <wp:comment_author>Gourav Tiwari</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://gouravtiwari.blogspot.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-01-09 09:28:42</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[It's a great gem! I don't know how did I miss this post :( This post clearly explain how to use the gem. Also very helpful in dealing with legacy database. <br><br>Thanks for sharing this :)]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/10/02/plsql-debugging-information-now-part-of.html</link>
+      <title>http://www.alexrothenberg.com/2009/10/plsql-debugging-information-now-part-of.html</title>
+      <wp:comment>
+        <wp:comment_id>131437092</wp:comment_id>
+        <wp:comment_author>prasoon</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.rcasts.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-10-03 14:05:30</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[that's awesome alex... congratulations and thanks for sharing]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/09/30/using-whenever-gem-to-manage-scheduled.html</link>
+      <title>http://www.alexrothenberg.com/2009/09/using-whenever-gem-to-manage-scheduled.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/08/19/how-to-capture-oracles-dbmsoutput-in.html</link>
+      <title>http://www.alexrothenberg.com/2009/08/how-to-capture-oracles-dbmsoutput-in.html</title>
+      <wp:comment>
+        <wp:comment_id>131437104</wp:comment_id>
+        <wp:comment_author>Alex Rothenberg</wp:comment_author>
+        <wp:comment_author_email>alex@alexrothenberg.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.alexrothenberg.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-11-04 23:46:17</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[@Andrew - thanks for the feedback.<br><br>This patch was merged into the official version of the gem in 1.2.2 2009-09-28.  Along the way it was modified to use the <a href="http://rubygems.org/gems/ruby-plsql">ruby-plsql gem</a> instead of calling the pl/sql procedure directly as a string.  Luckily that gem works with the latest version of ruby-oci8 so you can see dbms_output using the latest oracle_enhanced-adapter gem (I just verified it).]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437108</wp:comment_id>
+        <wp:comment_author>Andrew</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url/>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2010-11-02 16:43:25</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[FYI, under ruby-oci8 version 2.0, you need to change log_next_line_of_dbms_output to something like the following:<br><br>def log_next_line_of_dbms_output<br>  result = @connection.exec("BEGIN dbms_output.get_line(:return, :status); END;", ' '*DBMS_LINE_MAX_SIZE, 1){|*output|<br>    dbms_output_text,status = output<br>    got_text = (status == 0)<br>    @logger.debug "DBMS_OUTPUT: #{dbms_output_text}" if got_text<br>    got_text<br>  }<br>  result<br>end]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/07/22/one-year-of-blogging.html</link>
+      <title>http://www.alexrothenberg.com/2009/07/one-year-of-blogging.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/06/25/using-github-through-draconian-proxies.html</link>
+      <title>http://www.alexrothenberg.com/2009/06/using-github-through-draconian-proxies.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/06/metricfu-110-released-with-patch-from.html</link>
+      <title>http://www.alexrothenberg.com/2009/06/metricfu-110-released-with-patch-from.html</title>
+      <wp:comment>
+        <wp:comment_id>131437121</wp:comment_id>
+        <wp:comment_author>Rajesh Rathod</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/02326771239812946213</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-06-25 14:22:49</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Your contribution is quite inspirational to many colleagues in our firm. Who says it has to be  rocket science or too complex. What it takes is desire to contribute and we can see it in you. Great job!]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437124</wp:comment_id>
+        <wp:comment_author>Biju</wp:comment_author>
+        <wp:comment_author_email>biju.bhaskar@gmail.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.bijubhaskar.net</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-06-25 13:58:17</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Great job Alex!]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437125</wp:comment_id>
+        <wp:comment_author>Jake Scruggs</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://jakescruggs.blogspot.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-06-25 01:14:53</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Nice post - thanks for your contributions to metric_fu.]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/06/10/changing-history-with-git-rebase-how-to.html</link>
+      <title>http://www.alexrothenberg.com/2009/06/changing-history-with-git-rebase-how-to.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/05/21/how-to-use-dates-in-rails-when-your.html</link>
+      <title>http://www.alexrothenberg.com/2009/05/how-to-use-dates-in-rails-when-your.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/05/06/testing-ajax-without-browser-with.html</link>
+      <title>http://www.alexrothenberg.com/2009/05/testing-ajax-without-browser-with.html</title>
+      <wp:comment>
+        <wp:comment_id>131437137</wp:comment_id>
+        <wp:comment_author>J&#xE9;r&#xE9;my</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/12909882236479773632</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-06-09 13:08:00</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Oh yeah, it works fine now.<br><br>Thanks Alex for your time, you have won a new rss suscriber :)]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437140</wp:comment_id>
+        <wp:comment_author>Alex Rothenberg</wp:comment_author>
+        <wp:comment_author_email>alex@alexrothenberg.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.alexrothenberg.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-06-04 23:50:06</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[J&#xE9;r&#xE9;my<br><br>The simplest solution I can think of (and what I did in my application) is to hardcode a login right after I create the new @request inside the AutoCompleteStepsHelper class.  As long as you can pick a user that is allowed to make the ajax request.  I put an example of this on <a href="http://github.com/alexrothenberg/testing-ajax-example/blob/master/features/support/autocomplete_steps_helper.rb#L12-15"> on github</a> that you should be able to customize for your application.<br><br>I'm sure there's a more elegant way to tell the new request to use the same session as the original one but had trouble getting that to work.  <br><br>--Alex]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437143</wp:comment_id>
+        <wp:comment_author>J&#xE9;r&#xE9;my</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/12909882236479773632</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-06-04 16:07:16</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Thanks for your fast answer, and sorry for my late one :)<br><br>So, I have WebRat 0.4.4 so it shouldn't be the problem.<br><br>Here's the code I want to test : http://pastie.org/500526 <br><br>And thanks for helping me anyway !<br><br>Edit: added &amp;lt; a &amp;gt; tag]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437146</wp:comment_id>
+        <wp:comment_author>Alex Rothenberg</wp:comment_author>
+        <wp:comment_author_email>alex@alexrothenberg.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.alexrothenberg.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-06-03 16:32:52</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Jeremy,<br><br>Thanks for your comment, I'm glad you liked this!<br><br>I'm not sure about your problem.  I did a little googling and found that webrat and rails had some issues with redirects several months ago (see http://www.ruby-forum.com/topic/176981 or https://webrat.lighthouseapp.com/projects/10503/tickets/168-redirects-in-rails-23-not-being-followed-by-webrat).  From what I can tell they seem to have been cleared up with webrat 0.4.1.  Are you using the latest version?<br><br>If upgrading to the latest version doesn't help and you think the problem is related to ajax requests send me some sample code that fails and I may be able to help.<br><br>Thanks<br>Alex]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437147</wp:comment_id>
+        <wp:comment_author>J&#xE9;r&#xE9;my</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/12909882236479773632</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-06-03 15:23:14</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[First, thanks a lot for this awesome trick, it's exactly what I needed ...<br><br>... But, I'm having a problem using it with an implementation of AuthLogic. <br>As you can guess, the 2nd request doesn't get the user session infos, so I get redirected to the login page while testing.<br><br>Could you help me solving this ?<br><br>Thanks again,<br>J&#xE9;r&#xE9;my]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/03/30/managing-draw-of-single-elimination.html</link>
+      <title>http://www.alexrothenberg.com/2009/03/managing-draw-of-single-elimination.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/03/link-search-engine-in-200-lines-of-ruby.html</link>
+      <title>http://www.alexrothenberg.com/2009/03/link-search-engine-in-200-lines-of-ruby.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/03/18/java-as-legacy-language.html</link>
+      <title>http://www.alexrothenberg.com/2009/03/java-as-legacy-language.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/03/18/using-scopes-in-autocomplete-plugin.html</link>
+      <title>http://www.alexrothenberg.com/2009/03/using-scopes-in-autocomplete-plugin.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/03/04/microsoft-office-links-causing.html</link>
+      <title>http://www.alexrothenberg.com/2009/03/microsoft-office-links-causing.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/02/07/investigating-how-symbol-toproc-works.html</link>
+      <title>http://www.alexrothenberg.com/2009/02/investigating-how-symbol-toproc-works.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/02/05/maintaining-your-technical-chops-is.html</link>
+      <title>http://www.alexrothenberg.com/2009/02/maintaining-your-technical-chops-is.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/02/04/never-sacrifice-quality-for-speed.html</link>
+      <title>http://www.alexrothenberg.com/2009/02/never-sacrifice-quality-for-speed.html</title>
+      <wp:comment>
+        <wp:comment_id>131437170</wp:comment_id>
+        <wp:comment_author>Bharath Regula</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://bharathregula.blogspot.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-02-09 18:43:00</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Speed Kills!!]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437171</wp:comment_id>
+        <wp:comment_author>Anonymous</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url/>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-02-04 22:36:00</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[while I agree with you in theory, I think being dogmatic from either perspective could be difficult. Instead of "never sacrificing quality for speed," I would rather "always balance quality and speed."]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2009/01/09/how-i-refine-test-spec-while-writing.html</link>
+      <title>http://www.alexrothenberg.com/2009/01/how-i-refine-test-spec-while-writing.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/12/11/i-read-interesting-post-today-by-david.html</link>
+      <title>http://www.alexrothenberg.com/2008/12/i-read-interesting-post-today-by-david.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/12/06/bugpatch-with-rspec-rails-and-helper.html</link>
+      <title>http://www.alexrothenberg.com/2008/12/bugpatch-with-rspec-rails-and-helper.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/12/06/knows-which-specs-are-slowing-down-my.html</link>
+      <title>http://www.alexrothenberg.com/2008/12/knows-which-specs-are-slowing-down-my.html</title>
+      <wp:comment>
+        <wp:comment_id>131437186</wp:comment_id>
+        <wp:comment_author>alex rothenberg</wp:comment_author>
+        <wp:comment_author_email>alex@alexrothenberg.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.alexrothenberg.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-07-17 20:43:01</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[@chris - I'm glad you found this useful!]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437190</wp:comment_id>
+        <wp:comment_author>chrisadams</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url/>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-07-16 21:21:16</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Hi Alex - I stumbled across this post, when trying to work out why my specs were suddenly running slowly on an app I'm building, and I'm glad I did.<br><br>Thanks for sharing!]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/11/25/applications-usually-use-their-own-data.html</link>
+      <title>http://www.alexrothenberg.com/2008/11/applications-usually-use-their-own-data.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/11/20/silly-site-netdisaster-destroy-web.html</link>
+      <title>http://www.alexrothenberg.com/2008/11/silly-site-netdisaster-destroy-web.html</title>
+      <wp:comment>
+        <wp:comment_id>131437198</wp:comment_id>
+        <wp:comment_author>Meg Blocker</wp:comment_author>
+        <wp:comment_author_email>megblocker@gmail.com</wp:comment_author_email>
+        <wp:comment_author_url>http://queenietakesmanhattan.blogspot.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2008-11-23 23:40:00</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[That is oddly satisfying.]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437200</wp:comment_id>
+        <wp:comment_author>Gourav Tiwari</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://gouravtiwari.blogspot.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2008-11-21 16:39:00</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Good that now we can shoot the disasterous web-sites :)]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/11/16/buy-services-and-build-websites.html</link>
+      <title>http://www.alexrothenberg.com/2008/11/buy-services-and-build-websites.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/11/09/blog-aggregator-wayweworkit.html</link>
+      <title>http://www.alexrothenberg.com/2008/11/blog-aggregator-wayweworkit.html</title>
+      <wp:comment>
+        <wp:comment_id>131437207</wp:comment_id>
+        <wp:comment_author>prasoon</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.rcasts.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2008-12-04 01:12:00</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Thanks Alex for building a simple and powerful app. Its very useful and goes a long way in aggregating our bloggers.]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/10/09/using-ruby-for-shell-scripting.html</link>
+      <title>http://www.alexrothenberg.com/2008/10/using-ruby-for-shell-scripting.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/10/08/i-want-to-share-something-i-just.html</link>
+      <title>http://www.alexrothenberg.com/2008/10/i-want-to-share-something-i-just.html</title>
+      <wp:comment>
+        <wp:comment_id>131437220</wp:comment_id>
+        <wp:comment_author>gouravtiwari21</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://gouravtiwari.blogspot.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2008-10-10 15:34:00</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[And it really Worked!!!<br><br>+1 for this blog-post :)]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/08/testing-with-rspec-stories.html</link>
+      <title>http://www.alexrothenberg.com/2008/08/testing-with-rspec-stories.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/09/21/perhaps-outsourcing-is-harder-than.html</link>
+      <title>http://www.alexrothenberg.com/2008/09/perhaps-outsourcing-is-harder-than.html</title>
+      <wp:comment>
+        <wp:comment_id>131437224</wp:comment_id>
+        <wp:comment_author>Carlisia</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/10286882976838471699</wp:comment_author_url
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2008-10-17 12:21:00</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Alex, you have it nailed. The problem is not the distance. It is true that if you have a distributed team there are some extra steps you have to implement to make sure it works. The problem is the lack of commitment. I worked in a situation where most of the development was done offshore. I will never get a job like that again. The developers were brilliant (they were Russians) and great overall. But management was always complaining about how slow they were, how they didn't do the right things... And then, 2 and some years into the gig, they had a meeting one day and it was said by the offshore team: either you let *us* manage the project, or we are going to do exactly what you say, no more, no less. And that was the problem.]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/07/23/working-with-excel-data-without-working_23.html</link>
+      <title>http://www.alexrothenberg.com/2008/07/working-with-excel-data-without-working_23.html</title>
+      <wp:comment>
+        <wp:comment_id>131437231</wp:comment_id>
+        <wp:comment_author>tonypm</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/18114288672158412848</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-07-07 06:04:11</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[Thanks, that was the answer I was looking for.  I haven't had call to use the format option in a request link, so I guess the penny had not dropped that it really is that simple.]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437232</wp:comment_id>
+        <wp:comment_author>Alex Rothenberg</wp:comment_author>
+        <wp:comment_author_email>alex@alexrothenberg.com</wp:comment_author_email>
+        <wp:comment_author_url>http://www.alexrothenberg.com</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-07-06 14:25:34</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[@tonypm - I'm glad you found this helpful.  I'm not sure if your question is what I had to do on my client or inside the application.<br><br>On my local machine, I have Office installed which automatically registers itself as the handler for the 'application/<a href="http://vnd.ms">vnd.ms</a>-excel' mime type so I didn't have to do anything special locally (it's working for me on both Mac and Windows).  <br><br>Within my application I just created a link users can click on to get the csv/excel format.  It looks like this:  link_to('download as excel file', people_url(:format=&amp;gt;:csv)]]></wp:comment_content>
+      </wp:comment>
+      <wp:comment>
+        <wp:comment_id>131437234</wp:comment_id>
+        <wp:comment_author>tonypm</wp:comment_author>
+        <wp:comment_author_email/>
+        <wp:comment_author_url>http://www.blogger.com/profile/18114288672158412848</wp:comment_author_url>
+        <wp:comment_author_IP>255.255.255.255</wp:comment_author_IP>
+        <wp:comment_date_gmt>2009-07-05 05:22:58</wp:comment_date_gmt>
+        <wp:comment_content><![CDATA[That is a nice approach.  I was just wondering how you set up the client to enable the user to request the csv file?]]></wp:comment_content>
+      </wp:comment>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/07/13/how-to-unit-test-java-class-with-static.html</link>
+      <title>http://www.alexrothenberg.com/2008/07/how-to-unit-test-java-class-with-static.html</title>
+    </item>
+    <item>
+      <link>http://www.alexrothenberg.com/2008/07/04/dont-give-up-when-you-run-into.html</link>
+      <title>http://www.alexrothenberg.com/2008/07/dont-give-up-when-you-run-into.html</title>
+    </item>
+  </channel>
+</rss>
