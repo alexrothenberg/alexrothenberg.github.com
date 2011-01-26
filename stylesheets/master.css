@@ -50,7 +50,10 @@ body {
 .right {
   float: right;
 }
-.clearfix::after {
+.clearfix {
+  clear:both;
+}
+.articles_header {
   clear: both;
   content: ' ';
   display: block;
