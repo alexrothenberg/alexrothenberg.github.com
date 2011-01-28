@@ -9,7 +9,7 @@
     <meta name="author" content="Alex Rothenberg" />
     <link rel="stylesheet" href="/stylesheets/master.css" type="text/css" media="screen" charset="utf-8" />
   </head>
-  <body>
+  <body onLoad="suggestPage()">
     <div id="site">
       <div id="header">
         <h1>AlexRothenberg</h1>
@@ -23,12 +23,71 @@
 
       <div id="content">
         Oops, looks like this page doesn't exist.  
+        <div id="suggestedPage"></div>
       </div>
 
       <div id='footer'>
         Copyright © 2011 Alex Rothenberg. Some rights reserved.
       </div>
     </div>
+
+    <script type="text/javascript">
+      // make suggestions for old urls that jekyll and blooger have different naming conventions for
+      function suggestPage() {
+        var urlMap =     {
+          "/2009/09/using-whenever-gem-to-manage-scheduled.html":     "/2009/09/30/using-whenever-gem-to-manage-scheduled.html",
+          "/2009/05/how-to-use-dates-in-rails-when-your.html":        "/2009/05/21/how-to-use-dates-in-rails-when-your.html",
+          "/2009/03/microsoft-office-links-causing.html":             "/2009/03/04/microsoft-office-links-causing.html",
+          "/2010/10/combining-two-related-fields-in-url-to.html":     "/2010/10/11/combining-two-related-fields-in-url-to.html",
+          "/2010/09/purging-old-cruise-builds.html":                  "/2010/09/29/purging-old-cruise-builds.html",
+          "/2009/03/lines-of-ruby.html":                              "/2009/03/22/lines-of-ruby.html",
+          "/2008/12/bugpatch-with-rspec-rails-and-helper.html":       "/2008/12/06/bugpatch-with-rspec-rails-and-helper.html",
+          "/2008/07/working-with-excel-data-without-working_23.html": "/2008/07/23/working-with-excel-data-without-working_23.html",
+          "/2009/06/using-github-through-draconian-proxies.html":     "/2009/06/25/using-github-through-draconian-proxies.html",
+          "/2009/02/investigating-how-symbol-toproc-works.html":      "/2009/02/07/investigating-how-symbol-toproc-works.html",
+          "/2008/09/perhaps-outsourcing-is-harder-than.html":         "/2008/09/21/perhaps-outsourcing-is-harder-than.html",
+          "/2008/07/how-to-unit-test-java-class-with-static.html":    "/2008/07/13/how-to-unit-test-java-class-with-static.html",
+          "/2010/01/what-to-do-when-activerecord-thinks.html":        "/2010/01/27/what-to-do-when-activerecord-thinks.html",
+          "/2009/07/one-year-of-blogging.html":                       "/2009/07/22/one-year-of-blogging.html",
+          "/2009/03/using-scopes-in-autocomplete-plugin.html":        "/2009/03/18/using-scopes-in-autocomplete-plugin.html",
+          "/2008/12/i-read-interesting-post-today-by-david.html":     "/2008/12/11/i-read-interesting-post-today-by-david.html",
+          "/2008/11/silly-site-netdisaster-destroy-web.html":         "/2008/11/20/silly-site-netdisaster-destroy-web.html",
+          "/2008/11/buy-services-and-build-websites.html":            "/2008/11/16/buy-services-and-build-websites.html",
+          "/2008/11/blog-aggregator-wayweworkit.html":                "/2008/11/09/blog-aggregator-wayweworkit.html",
+          "/2008/12/knows-which-specs-are-slowing-down-my.html":      "/2008/12/06/knows-which-specs-are-slowing-down-my.html",
+          "/2008/10/using-ruby-for-shell-scripting.html":             "/2008/10/09/using-ruby-for-shell-scripting.html",
+          "/2009/06/released-with-patch-from.html":                   "/2009/06/24/released-with-patch-from.html",
+          "/2009/01/how-i-refine-test-spec-while-writing.html":       "/2009/01/09/how-i-refine-test-spec-while-writing.html",
+          "/2008/07/dont-give-up-when-you-run-into.html":             "/2008/07/04/dont-give-up-when-you-run-into.html",
+          "/2010/01/freezing-gem-that-has-native-extensions.html":    "/2010/01/13/freezing-gem-that-has-native-extensions.html",
+          "/2009/10/plsql-debugging-information-now-part-of.html":    "/2009/10/02/plsql-debugging-information-now-part-of.html",
+          "/2009/06/changing-history-with-git-rebase-how-to.html":    "/2009/06/10/changing-history-with-git-rebase-how-to.html",
+          "/2009/02/maintaining-your-technical-chops-is.html":        "/2009/02/05/maintaining-your-technical-chops-is.html",
+          "/2008/11/applications-usually-use-their-own-data.html":    "/2008/11/25/applications-usually-use-their-own-data.html",
+          "/2008/10/i-want-to-share-something-i-just.html":           "/2008/10/08/i-want-to-share-something-i-just.html",
+          "/2011/01/setting-up-new-mac-for-rails.html":               "/2011/01/04/setting-up-new-mac-for-rails.html",
+          "/2010/09/use-dashes-not-underscores-in-your.html":         "/2010/09/24/use-dashes-not-underscores-in-your.html",
+          "/2008/10/testing-with-rspec-stories.html":                 "/2008/10/08/testing-with-rspec-stories.html",
+          "/2010/03/its-not-too-late-to-solve-y2k-bug-i.html":        "/2010/03/14/its-not-too-late-to-solve-y2k-bug-i.html",
+          "/2009/11/generate-models-from-tables-legacy-data.html":    "/2009/11/05/generate-models-from-tables-legacy-data.html",
+          "/2009/03/java-as-legacy-language.html":                    "/2009/03/18/java-as-legacy-language.html",
+          "/2009/02/never-sacrifice-quality-for-speed.html":          "/2009/02/04/never-sacrifice-quality-for-speed.html",
+          "/2009/08/how-to-capture-oracles-dbmsoutput-in.html":       "/2009/08/19/how-to-capture-oracles-dbmsoutput-in.html",
+          "/2009/05/testing-ajax-without-browser-with.html":          "/2009/05/06/testing-ajax-without-browser-with.html",
+          "/2009/03/managing-draw-of-single-elimination.html":        "/2009/03/30/managing-draw-of-single-elimination.html"
+        }
+
+        var pathname = window.location.pathname
+        var suggestedPage = urlMap[pathname]
+        if (suggestedPage != undefined) {
+          document.getElementById('suggestedPage').innerHTML = '<br/>It looks like you meant <a href="' + suggestedPage + '">' + suggestedPage + '</a>.' +
+                                                               '<br/> ' +
+                                                               '<br/> Taking you there in shortly...'
+          setTimeout(function() { window.location = suggestedPage}, 5000)
+        }
+      }
+      </script>
+
     <!-- Google Analytics -->
     <script type="text/javascript">
     var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
