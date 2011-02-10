@@ -1,0 +1,159 @@
+html {
+  font-family: Monaco;
+  color: #E6E0DB;
+  font-size:0.95em;
+  font-color: white;
+  background-color: #333333;
+}
+
+body {
+  margin: 0;
+}
+
+.banner {
+  background-color: #222222;
+  width: 100%;
+  height: 100px;
+  position: fixed;
+  z-index:10;
+}
+
+.buddy {
+  float: left;
+  padding: 5px;
+}
+
+.item {
+  float: left;
+}
+
+.link {
+  float: right;
+  padding: 5px;
+}
+
+.title {
+  font-size:1.95em;
+}
+
+.form {
+  position: fixed;
+  top:100px;
+  padding: 10px;
+}
+
+a {
+  color: white;
+  font-size:0.85em;
+}
+
+#code-viewer {
+  position: fixed;
+  top:110;
+  width:80%;
+  opacity:0.9;
+  z-index:10;
+  margin-left:10px;
+}
+
+#code {
+  min-height: 340px;
+  border:2px solid #666;
+  border-radius:5px;
+  -moz-border-radius:5px;
+  padding:5px;
+  background-color: black;
+  white-space: pre;
+}
+
+#legend {
+  top:100;
+  font-size: 0.8em;
+  z-index:10;
+  padding: 5px;
+  background: #222;
+  -webkit-border-bottom-right-radius: 5px;
+  -webkit-border-bottom-left-radius: 5px;
+  -moz-border-radius-bottomright: 5px;
+  -moz-border-radius-bottomleft: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+#legend ul {
+  margin:0;
+}
+#legend li {
+  padding:0;
+}
+
+
+#selected_line {
+  border-style: ridge;
+  border-color: #666666;
+  background-color: black;
+  position: fixed;
+  top:180;
+  width:80%;
+  opacity:0.8;
+  z-index:10;
+  font-size: 12px;
+}
+
+#stack {
+  position: absolute; 
+  right:5px;
+  top:100px;
+  z-index:1;
+  text-align: right;
+  font-size: 0.8em;
+}
+
+.hidden {
+  display: none;
+}
+
+ul {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+li {
+  border-color: #666666;
+  font-size: 12px;
+  font-family: Monaco;
+  line-height: 23px;
+  list-style: none;
+}
+
+#stack li:hover {
+  background:#444;
+  cursor:pointer;
+}
+
+.bookmarked {
+  background:#666;
+}
+
+#opacity {
+  width:25px;
+}
+
+#current {
+  white-space:nowrap;
+  background:#222;
+  color:white;
+  font-weight:bold;
+  text-align:right;
+  overflow:hidden;
+  padding:4px;
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+#current div {
+  float:right;
+}

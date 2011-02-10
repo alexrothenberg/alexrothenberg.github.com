@@ -1,0 +1,47 @@
+.CodeRay {
+  background-color: black;
+  border: 1px solid black;
+  color: #E6E0DB;
+  overflow: auto;
+  font-size: 12px;
+}
+.CodeRay pre {
+  margin: 0px;
+  padding: 0px;
+  font-family: Monaco;
+}
+
+.CodeRay .an { color:#E7BE69 }                      /* html attribute */
+.CodeRay .c  { color:#AF1CD4; }                     /* comment */
+.CodeRay .ch { color:#509E4F }                      /* escaped character */
+.CodeRay .cl { color:#A9A871 }                         /* class */
+.CodeRay .co { color:#FFF }                         /* constant */
+.CodeRay .fl { color:#A4C260 }                      /* float */
+.CodeRay .fu { color:#F7CD00 }                      /* function */
+.CodeRay .gv { color:#D0CFFE }                      /* global variable */
+.CodeRay .i  { color:#009C9B }                      /* integer */
+.CodeRay .il { background:#151515 }                 /* inline code */
+.CodeRay .iv { color:#F7CD00 }                      /* instance variable */
+.CodeRay .pp { color:#E7BE69 }                      /* doctype */
+.CodeRay .r  { color:#FF5C00 }                      /* keyword */
+.CodeRay .kw { color:#FF5C00 }                      /* keyword */
+.CodeRay .rx { color:#009C9B }                      /* regex */
+.CodeRay .s  { color:#00FF00 }                      /* string */
+.CodeRay .sy { color:#009C9B }                      /* symbol */
+.CodeRay .ta { color:#E7BE69 }                      /* html tag */
+.CodeRay .pc { color:#6C9CBD }                      /* boolean */
+
+.selected .overlay {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: #CCCCFF;
+	opacity: 0.35;
+	-moz-opacity: 0.35;
+	filter:alpha(opacity=35);
+}
+.container {
+	position: relative;
+}
