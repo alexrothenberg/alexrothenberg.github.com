@@ -183,7 +183,8 @@ CodeBuddy.backbone.CodeView = Backbone.View.extend({
   },
 
   editCode: function() {
-	  $.get('../edit/' + CodeBuddy.stack.get('selected'))
+    alert('Editing code is disabled in this demo.\n\nIn CodeBuddy if you were running on localhost this would use your $EDITOR variable to open the currently shown code in your favorite editor.')
+    // $.get('../edit/' + CodeBuddy.stack.get('selected'))
   },
   
   setOpacity: function(newOpacity) {
@@ -211,9 +212,10 @@ CodeBuddy.backbone.FormView = Backbone.View.extend({
   },
   
   show: function(){
-    this.el.show();
-    $("#code-viewer").hide()
-    this.el.find("textarea").focus()
+    alert('Pasting your own exception stack is disabled in this demo.\n\nIn CodeBuddy a form would appear and the exception stack will be replaced with a new one you paste in.')
+    // this.el.show();
+    // $("#code-viewer").hide()
+    // this.el.find("textarea").focus()
     return false;
   },
   
