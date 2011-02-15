@@ -6,7 +6,7 @@ layout: nil
  
  <title>Alex Rothenberg</title>
  <link href="http://www.alexrothenberg.com/atom.xml" rel="self"/>
- <link href="http://www.alexrothenberg.com/"/>
+ <link href="http://www.alexrothenberg.com/" rel="alternate" type="text/html" />
  <updated>{{ site.time | date_to_xmlschema }}</updated>
  <id>http://www.alexrothenberg.com/</id>
  <author>
