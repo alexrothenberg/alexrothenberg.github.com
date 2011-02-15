@@ -14,58 +14,151 @@ time: 2008-11-09 10:33:00.005000 -05:00
   <br>
   First I created my project with some scaffolding for feeds which would have_many posts<br>
 </p>
-<pre class="old_code">
-<br>class Feed &lt; ActiveRecord::Base<br>  has_many :posts, :dependent =&gt; :delete_all<br>end<br><br>class Post &lt; ActiveRecord::Base<br>  belongs_to :feed<br>end<br>
-</pre>
+
+{% highlight ruby %}
+class Feed < ActiveRecord::Base
+  has_many :posts, :dependent => :delete_all
+end
+
+class Post < ActiveRecord::Base
+  belongs_to :feed
+end
+{% endhighlight %}
+
 <p>
   <br>
   <br>
   I soon found the <a href="http://split-s.blogspot.com/2006/04/atom-10-parser-for-ruby.html">atom gem</a> and <a href="http://www.rubyrss.com/">rss parser</a> built into ruby. Using them was a piece of cake as all I had to do was create a method to call each one in my Feed model<br>
 </p>
-<pre class="old_code">
-<br>class Feed &lt; ActiveRecord::Base<br>  def get_posts_from_atom atom_xml<br>    feed = Atom::Feed.new(atom_xml)<br>    feed.entries.each { |entry|<br>      link = entry.links.detect {|l| l.rel == 'alternate'}<br>      create_post(:contents=&gt;entry.content.value, :url=&gt;link.href, :title=&gt;entry.title, :published=&gt;entry.published.to_s(:db), :updated=&gt;entry.updated.to_s(:db))<br>    }<br>    return !feed.entries.blank?<br>  end  <br>  <br>  def get_posts_from_rss rss_xml<br>    rss = RSS::Parser.parse(rss_xml, false)<br>    rss.items.each { |entry|<br>      create_post(:contents=&gt;entry.description, :url=&gt;entry.link, :title=&gt;entry.title, :published=&gt;entry.date.to_formatted_s(:db), :updated=&gt;entry.date.to_formatted_s(:db))<br>    }<br>    return !rss.items.blank?<br>  end<br>end<br>
-</pre>
+
+{% highlight ruby %}
+class Feed < ActiveRecord::Base
+  def get_posts_from_atom atom_xml
+    feed = Atom::Feed.new(atom_xml)
+    feed.entries.each { |entry|
+      link = entry.links.detect {|l| l.rel == 'alternate'}
+      create_post(:contents=>entry.content.value, :url=>link.href, :title=>entry.title, 
+                  :published=>entry.published.to_s(:db), :updated=>entry.updated.to_s(:db))
+    }
+    return !feed.entries.blank?
+  end  
+  
+  def get_posts_from_rss rss_xml
+    rss = RSS::Parser.parse(rss_xml, false)
+    rss.items.each { |entry|
+      create_post(:contents=>entry.description, :url=>entry.link, :title=>entry.title, 
+                  :published=>entry.date.to_formatted_s(:db), :updated=>entry.date.to_formatted_s(:db))
+    }
+    return !rss.items.blank?
+  end
+end
+{% endhighlight %}
+
 <p>
   <br>
   <br>
   Of course I had to create the glue wrapping it all together. A rake task to be call on a schedule<br>
 </p>
-<pre class="old_code">
-<br>namespace :feeds do<br>  desc "Load the feeds"<br>  task :populate =&gt; :environment do<br>    feeds = Feed.all<br>    feeds.each do |feed|<br>      feed.get_latest<br>    end<br>  end<br>end<br>
-</pre>
+
+{% highlight ruby %}
+namespace :feeds do
+  desc "Load the feeds"
+  task :populate => :environment do
+    feeds = Feed.all
+    feeds.each do |feed|
+      feed.get_latest
+    end
+  end
+end
+{% endhighlight %}
+
 <p>
   <br>
   <br>
   and the logic to load the feed, parse it and update the posts.<br>
 </p>
-<pre class="old_code">
-<br>class Feed &lt; ActiveRecord::Base<br>  def get_latest<br>    puts "getting feed for #{name}"<br>    xml = get_feed<br>    got_atom_posts = get_posts_from_atom xml<br>    get_posts_from_rss xml unless got_atom_posts<br>  end<br><br>  def get_feed<br>    uri = URI.parse(feed_url)<br>    uri.read<br>  end<br>  <br>  def create_post params<br>    params.merge!(:feed_id=&gt;id) <br>    existing_post = Post.find_by_url(params[:url])<br>    if existing_post<br>      existing_post.update_attributes(params)<br>    else<br>      Post.create(params) <br>    end<br>  end<br>end<br>
-</pre>
+
+{% highlight ruby %}
+class Feed < ActiveRecord::Base
+  def get_latest
+    puts "getting feed for #{name}"
+    xml = get_feed
+    got_atom_posts = get_posts_from_atom xml
+    get_posts_from_rss xml unless got_atom_posts
+  end
+
+  def get_feed
+    uri = URI.parse(feed_url)
+    uri.read
+  end
+  
+  def create_post params
+    params.merge!(:feed_id=>id) 
+    existing_post = Post.find_by_url(params[:url])
+    if existing_post
+      existing_post.update_attributes(params)
+    else
+      Post.create(params) 
+    end
+  end
+end
+{% endhighlight %}
+
 <p>
   <br>
   <br>
   The next step was to publish an atom feed of my site. Again there was a plugin <a href="http://dev.rubyonrails.org/browser/plugins/atom_feed_helper">atom_feed_helper</a>waiting to help me. I installed the plugin and created a view builder<br>
 </p>
-<pre class="old_code">
-<br>atom_feed(:url =&gt; atom_feed_url) do |feed|<br>  feed.title("WayWeWork")<br>  feed.updated(@posts.first.published)<br><br>  for post in @posts<br>    feed.entry(post, :url=&gt;post.url, :published=&gt;post.published, :updated=&gt;post.updated) do |entry|<br>      entry.title("#{post.feed.author}: #{post.title}")<br>      entry.content(post.contents, :type =&gt; 'html')<br>    end<br>  end<br>end<br>
-</pre>
+
+{% highlight ruby %}
+atom_feed(:url => atom_feed_url) do |feed|
+  feed.title("WayWeWork")
+  feed.updated(@posts.first.published)
+
+  for post in @posts
+    feed.entry(post, :url=>post.url, :published=>post.published, :updated=>post.updated) do |entry|
+      entry.title("#{post.feed.author}: #{post.title}")
+      entry.content(post.contents, :type => 'html')
+    end
+  end
+end
+{% endhighlight %}
+
 <p>
   <br>
   This was all so easy I had hardly done anything other than glue these plugins together. Now I finished up with a few bells and whistles.<br>
   <br>
   I added a who's talking and archive by date section to my homepage that I called from my controller like this<br>
 </p>
-<pre class="old_code">
-<br>class PostsController &lt; ApplicationController<br>  @active_feeds = Feed.by_author<br>  @activity_by_date = Post.activity_by_date<br>end<br>
-</pre>
+
+{% highlight ruby %}
+class PostsController < ApplicationController
+  @active_feeds = Feed.by_author
+  @activity_by_date = Post.activity_by_date
+end
+{% endhighlight %}
+
 <p>
   <br>
   <br>
   I added security to restrict who can administer feeds<br>
 </p>
-<pre class="old_code">
-<br>class FeedsController &lt; ApplicationController<br>  before_filter :authenticate<br><br>protected<br>  def authenticate<br>     authenticate_or_request_with_http_basic do | user_name, password|<br>       username = YAML::load_file(File.join(RAILS_ROOT, %w[config password.yml]))['username']<br>       pwd = YAML::load_file(File.join(RAILS_ROOT, %w[config password.yml]))['password']<br>      user_name == username &amp;&amp; password == pwd<br>    end<br>  end<br>end<br>
-</pre>
+
+{% highlight ruby %}
+class FeedsController < ApplicationController
+  before_filter :authenticate
+
+protected
+  def authenticate
+     authenticate_or_request_with_http_basic do | user_name, password|
+       username = YAML::load_file(File.join(RAILS_ROOT, %w[config password.yml]))['username']
+       pwd = YAML::load_file(File.join(RAILS_ROOT, %w[config password.yml]))['password']
+      user_name == username && password == pwd
+    end
+  end
+end
+{% endhighlight %}
+
 <p>
   <br>
   <br>
