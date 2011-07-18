@@ -6,8 +6,8 @@ layout: master
 # About Me (Bio)
 ![Alex Rothenberg](https://secure.gravatar.com/avatar/f4252ea05ddfbeb7b1803e9941ea46aa)
 
-Alex has over 15 years of experience doing end-to-end developmetn of web applications for small startups and in the enterprise.
-In all contexts he strives to find simple, common-sense solutions to complex problems.  
+Alex has over 15 years of experience doing end-to-end development of web applications for small startups and in the enterprise.
+In all contexts he strives to find simple, common-sense solutions to complex problems.
 Over the years he has worked with a wide variety of technologies. 
 He currently enjoys spending most of his time with RubyOnRails and jQuery but often has to 
 find ways to coexist with legacy technologies in the IT department at a large enterprise.
