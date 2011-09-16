@@ -121,3 +121,10 @@ li p {
   margin-top: 0px;
   margin-bottom: 0px;
 }
+
+.contributions {
+  float: right;
+  border: aliceBlue;
+  padding: 10px;
+  border-style: solid;
+}
