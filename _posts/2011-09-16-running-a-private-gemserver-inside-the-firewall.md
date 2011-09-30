@@ -61,7 +61,7 @@ I've been using bundler to create my gems with the `bundle gem` command and one 
 Check out the [New Gem with Bundler Railscast](http://railscasts.com/episodes/245-new-gem-with-bundler) to learn how it works.
 
 {% highlight console %}
-$ bundle gem my_awesome_gem                                                                                                                                                                    [ruby-1.8.7-p334]
+$ bundle gem my_awesome_gem
       create  my_awesome_gem/Gemfile
       create  my_awesome_gem/Rakefile
       create  my_awesome_gem/.gitignore
@@ -75,7 +75,7 @@ Let's look at the tasks we've got.
 
 {% highlight console %}
 $ cd my_awesome_gem
-$ rake -T                                                                                                                                                                 [master][ruby-1.8.7-p334]
+$ rake -T
 rake build    # Build my_awesome_gem-0.0.1.gem into the pkg directory
 rake install  # Build and install my_awesome_gem-0.0.1.gem into system gems
 rake release  # Create tag v0.0.1 and build and push my_awesome_gem-0.0.1.gem to Rubygems
@@ -129,7 +129,7 @@ end
 Now when we call `rake release` it will push the gem to our private server instead of the public one.  Let's see:
 
 {% highlight console %}
-$ rake release                                                                                                                                                    [master][ruby-1.8.7-p334]
+$ rake release
 my_awesome_gem 0.0.1 built to pkg/my_awesome_gem-0.0.1.gem
 Tagged v0.0.1
 Pushed git commits and tags
