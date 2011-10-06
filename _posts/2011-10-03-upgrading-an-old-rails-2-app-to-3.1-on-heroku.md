@@ -191,7 +191,7 @@ it 'should ...' do
 end
 {% endhighlight %}
 
-We get an error `undefined method `stubs' for #<Feed:0x105d572e8>`
+We get an error `undefined method 'stubs' for \#<Feed:0x105d572e8>`
 
 {% highlight ruby %}
 # NEW
