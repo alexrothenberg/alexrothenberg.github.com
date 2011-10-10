@@ -84,10 +84,16 @@ body {
 }
 
 
+.post .heading_image {
+  float: left;
+  padding-right: 30px;
+}
+
 .post h1 {
   margin-bottom: 0px;
 }
 .post h2 {
+  clear: both;
   color: #580000;
   font-variant: small-caps;
 }
