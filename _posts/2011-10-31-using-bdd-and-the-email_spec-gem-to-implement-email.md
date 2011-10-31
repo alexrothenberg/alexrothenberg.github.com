@@ -3,40 +3,70 @@ layout: post
 title: Using BDD & the email_spec gem to implement Email
 ---
 
-The [email_spec gem](https://github.com/bmabey/email-spec) is something I've decided I can't live without when implementing email functionality.
+When implementing email functionality, the [email_spec gem](https://github.com/bmabey/email-spec) is something I've decided I can't live without.
 It makes it so easy to write RSpec specs and Cucumber features around your email that you have no excuse not to.
+Today I'm going to go through an example how I recently used BDD to send an email in an app I was working on.
 
-When I think about email and the 4 Rails environments I typically use this is how we want them to behave (with regards to email).
+When I think about email and my Rails environments this is how I typically want them to behave.
 
 * __test__        should not send emails and allow us to write specs or features against them
-* __development__ should not send emails but provide a UI to view what would be sent
-* __staging__     should not send emails but provide a UI to view what would be sent
+* __development__ should not send emails but provide a UI to view what would be sent on localhost
+* __staging__     should not send emails but provide a UI to view what would be sent on a server
 * __production__  should send real emails to real people
 
 Last week I wrote about
 [using letter opener to View Sent Email on a Server (without actually sending anything)](http://www.alexrothenberg.com/2011/10/24/using-letter-opener-to-view-sent-email-on-a-server.html)
-describing how the `letter_opener gem` helps us solve the *development* and *staging* environments.
-Today I'm going to talk about the *test* environment and how I actually implement email using BDD.
+describing how the `letter_opener gem` helps us in the *development* and *staging* environments.
+This article focuses on using `email_spec gem` in the *test* environment.
 
 ## Our Sample Project
 
 Let's imagine we are working on a new startup in stealth mode.  We want to generate buzz and prepare for a beta launch.
 We're hiding the fact its all vaporware with a splashy homepage where people can request an invitation to the beta and
-records their email. This is the same example as my article last week and there's a
-[live demo at http://awesome-site-staging.heroku.com/](http://awesome-site-staging.heroku.com/).
+records their email in our database. This is the same example as my article last week and there's a
+live demo at [http://awesome-site-staging.heroku.com/](http://awesome-site-staging.heroku.com/).
 
-What we'll do here is not just record the email address but also send a "thanks for your interest" email to it.
+What we'll do today is not just record the email address but also send a "thanks for your interest" email to the user.
+We're going to do this in BDD fashion bouncing back and forth between `Cucumber Scenarios` and `RSpec Unit Tests`
 
-## Getting started
+1. Writing a cucumber scenario
+2. While the scenario fails
+    1. Write a failing rspec spec
+    2. Write code to make it pass
 
-The first thing to do is write a cucumber feature and let that drive us on the code we need to write.
+The Cucumber scenario tells us what should be accomplished and when it fails it we use that to tell us what unit test we should write.
+
+## Adding the *email_spec* gem
+
+We add it to our `Gemfile`
+{% highlight ruby %}
+group :test do
+  gem 'email_spec'
+end
+{% endhighlight %}
+
+We bundle and use the email_spec generator to let it initialize itself.
+{% highlight console %}
+$ bundle
+$ rails g email_spec:steps
+{% endhighlight %}
+
+There's also a manual step to get cucumber to load the email_spec gem.  We need to create a file `features/support/email_spec.rb`
+
+{% highlight ruby %}
+require 'email_spec/cucumber'
+{% endhighlight %}
+
+## Our first Cucumber Scenario
+
+We know that when a user requests an invitation they should get an email so we write that requirement as a Cucumber Scenario.
 `features/request_an_invitation.feature`
 
 {% highlight gherkin %}
 Feature: Build excitement for this vaporware
   In order to drum up interest
   As a user
-  I will receive an exciting email
+  I will receive an exciting email when I request an invitation
 
   Scenario: Someone requests an invitation and receives an email
     Given I am on the home page
@@ -70,7 +100,7 @@ end
 {% endhighlight %}
 
 Oh right, [the training wheels came off](http://aslakhellesoy.com/post/11055981222/the-training-wheels-came-off) in `cucumber-rails v1.1.1`
-and we don't have `web_steps.rb` anymore. Let's write those steps in `features/step_definitions/invite_steps.rb`
+and we don't have `web_steps.rb` anymore. Let's write these steps using *capybara* in `features/step_definitions/invite_steps.rb`
 
 {% highlight ruby %}
 Given /^I am on the home page$/ do
@@ -84,32 +114,17 @@ When /^I request an invitation for "([^"]*)"$/ do |email|
 end
 {% endhighlight %}
 
-We run it and get another error
+We run one more time and get a failure we expect.  Its telling us we haven't written any code to implement the scenario yet!
 
 {% highlight console %}
-Then "gullible@lemmings.com" should receive 1 email                 # features/step_definitions/email_steps.rb:51
-  undefined method `unread_emails_for' for #<Cucumber::Rails::World:0x105aad1f0> (NoMethodError)
-  ./features/step_definitions/email_steps.rb:52:in `/^(?:I|they|"([^"]*?)") should receive (an|no|\d+) emails?$/'
-  features/request_an_invitation.feature:9:in `Then "gullible@lemmings.com" should receive 1 email'
-{% endhighlight %}
-
-It looks like there's a manual step to get cucumber to load the email_spec gem.  We need to create a file `features/support/email_spec.rb`
-
-{% highlight ruby %}
-require 'email_spec/cucumber'
-{% endhighlight %}
-
-We run one more time and we finally get a failure we expect.  Its telling us we haven't implemented the feature yet!
-
-{% highlight console %}
-  Then "gullible@lemmings.com" should receive 1 email               # features/step_definitions/email_steps.rb:51
+  Then "gullible@lemmings.com" should receive 1 email
   expected: 1
        got: 0 (using ==) (RSpec::Expectations::ExpectationNotMetError)
   ./features/step_definitions/email_steps.rb:52:in `/^(?:I|they|"([^"]*?)") should receive (an|no|\d+) emails?$/'
   features/request_an_invitation.feature:9:in `Then "gullible@lemmings.com" should receive 1 email'
 {% endhighlight %}
 
-## Down to the unit tests
+## Dropping into RSpec unit tests
 
 Our failing feature tells us what we need to implement so we drop down to the unit test level and start implementing it with TDD.
 The feature tells us an email should be be generated so let's go.
@@ -170,7 +185,7 @@ end
 
 Are we done?
 
-## Up to the features
+## Checking the Cucumber Scenario...
 
 The RSpec unit tests pass now but the Cucumber features are still failing.
 
@@ -188,7 +203,7 @@ Duh our `InviteMailer` doesn't do anything.
 
 ## Back down to the unit tests
 
-In `spec/mailers/invite_mailer_spec.rb`
+We write our `spec/mailers/invite_mailer_spec.rb`.  We need to include some *EmailSpec* modules so we have access to its matchers.
 
 {% highlight ruby %}
 require 'spec_helper'
@@ -219,8 +234,8 @@ Of course it fails because we still haven't implemented anything.  Let's add som
 class InviteMailer < ActionMailer::Base
   def invite_requested(invite)
     @invite = invite
-    mail :to => invite.email,
-         :from => 'alex@awesome-startup.com',
+    mail :to      => invite.email,
+         :from    => 'alex@awesome-startup.com',
          :subject => 'Invitation request for Awesome New Startup received'
   end
 end
@@ -228,21 +243,20 @@ end
 
 and we can use haml to format the body in `app/views/invite_mailer/invite_requested.text.haml`
 
-{% highlight ruby %}
+{% highlight erb %}
 == Dear #{@invite.email},
-
 We have received your request to be invited into our awesome site. We'll let you know as soon as its available.
 Please check back at http://awesome-site-staging.heroku.com
-
 You must be very excited!
-
 Thanks
 An Awesome New Startup
 {% endhighlight %}
 
+We run the `rake` one more time and ...
+
 ## We're Done
 
-We run `rake` and lo and behold it all passes.  The specs _and_ the features!
+Everything passes - the specs _and_ the features!
 
 {% highlight console %}
 $ rake
@@ -275,3 +289,4 @@ Feature: Build excitement for this vaporware
 0m0.293s
 {% endhighlight %}
 
+I hope you'll consider using the `email_spec gem` and `BDD` the next time you have to add email to your app.
