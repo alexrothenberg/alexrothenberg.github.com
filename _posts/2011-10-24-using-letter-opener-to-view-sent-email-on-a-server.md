@@ -35,7 +35,7 @@ Here's a [live demo at http://awesome-site-staging.heroku.com/](http://awesome-s
 
 After you request an invitation it shows a page like this
 
-![Vaporware Homepage](/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/home_page.png)
+![Vaporware Homepage](http://www.alexrothenberg.com/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/home_page.png)
 
 ## Logfile testing (we can do better)
 
@@ -95,7 +95,7 @@ Once we've done that what happens when we use the site to request an invitation?
 A new tab opens up with the email right there. 
 Now as a user we can tell it's correct and any non-technical people on the team can feel their confidence rise.
 
-![Previewing an Email with Letter Opener in Development](/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/development_letter_opener.png)
+![Previewing an Email with Letter Opener in Development](http://www.alexrothenberg.com/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/development_letter_opener.png)
 
 
 ###How does letter_opener actually work?
@@ -140,15 +140,15 @@ Now we can see it all in action.
 
 First, we request an invite.
 
-![Previewing an Email with Letter Opener in Development](/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/invite_requested_on_server.png)
+![Previewing an Email with Letter Opener in Development](http://www.alexrothenberg.com/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/invite_requested_on_server.png)
 
 Then, we click the link "view the Emails that users would have received" link at the bottom and see an "inbox" of everything the app sent.
 
-![Previewing an Email with Letter Opener in Development](/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/preview_inbox_on_server.png)
+![Previewing an Email with Letter Opener in Development](http://www.alexrothenberg.com/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/preview_inbox_on_server.png)
 
 Fincally clicking one message lets us preview it just as we did in devellopment
 
-![Previewing an Email with Letter Opener in Development](/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/preview_email_on_server.png)
+![Previewing an Email with Letter Opener in Development](http://www.alexrothenberg.com/images/2011-10-24-previewing-email-instead-of-sending-prior-to-production/preview_email_on_server.png)
 
 We are able to run on heroku without writing to the file system by using the [FakeFS gem](https://github.com/defunkt/fakefs) which simulates the filesystem in memory.
 FakeFS is designed to be used for testing and one caveat to be aware of is that your old emails will disappear if heroku recycles your dyno due to inactivity. 

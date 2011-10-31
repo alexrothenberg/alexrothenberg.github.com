@@ -41,16 +41,16 @@ I spent some time adding bundler before realizing that was a bad idea and backin
 Once geminabox is up and running you can view your gems at your internal url
 and you'll see the gem server homepage showing you it has no gems.
 
-![New Gem Server](/images/2011-09-16-running-a-private-gemserver-inside-the-firewall/geminabox_empty.png)
+![New Gem Server](http://www.alexrothenberg.com/images/2011-09-16-running-a-private-gemserver-inside-the-firewall/geminabox_empty.png)
 
 The easiest thing is to add a new gem by clicking "Upload Another Gem" and selecting a `.gem` file from your hard drive
 (I picked `diagnostics-0.0.1.gem` in the image below).
 
-![Upload A Gem Manuallly](/images/2011-09-16-running-a-private-gemserver-inside-the-firewall/geminabox_upload.png)
+![Upload A Gem Manuallly](http://www.alexrothenberg.com/images/2011-09-16-running-a-private-gemserver-inside-the-firewall/geminabox_upload.png)
 
 Once you click `uppload` you should see your gem on the page.
 
-![Gem Server With A Gem](/images/2011-09-16-running-a-private-gemserver-inside-the-firewall/geminabox_with_a_gem.png)
+![Gem Server With A Gem](http://www.alexrothenberg.com/images/2011-09-16-running-a-private-gemserver-inside-the-firewall/geminabox_with_a_gem.png)
 
 At this point we could start using this gem server in our apps but before we talk about that let's automate the manual
 process we just went through to add a gem.
@@ -138,7 +138,7 @@ Pushed my_awesome_gem 0.0.1 to http://gems.intranet.mycompany.com
 
 Now when we go to the gem server site, we can see our new awesome gem in the list
 
-![Gem Server With Awesome Gem](/images/2011-09-16-running-a-private-gemserver-inside-the-firewall/geminabox_with_awesome_gem.png)
+![Gem Server With Awesome Gem](http://www.alexrothenberg.com/images/2011-09-16-running-a-private-gemserver-inside-the-firewall/geminabox_with_awesome_gem.png)
 
 The gem is there an you can use install it with a command like `gem install my_awesome_gem --source http://gems.intranet.mycompany.com`
 
