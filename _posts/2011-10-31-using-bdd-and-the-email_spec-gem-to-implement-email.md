@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Using BDD &amp; the email_spec gem to implement Email
+title: Using BDD and the email_spec gem to implement Email
 ---
 
 When implementing email functionality, the [email_spec gem](https://github.com/bmabey/email-spec) is something I've decided I can't live without.
