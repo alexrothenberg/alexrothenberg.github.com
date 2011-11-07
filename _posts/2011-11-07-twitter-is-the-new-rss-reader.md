@@ -14,7 +14,7 @@ I was so excited I even wrote [an article](http://www.alexrothenberg.com/2008/11
 
 Now that its 2011, I've been asking myself how could I update [http://waywework.it](http://waywework.it) for the twitter world of today?
 
-I decide that if we're going to follow people on twitter that's what my site should facilitaate.
+I decide that if we're going to follow people on twitter that's what my site should facilitate.
 When new posts come in it should tweet them letting you see them if you follow [@WayWeWorkIT](https://twitter.com/#!/WayWeWorkIT).
 
 ## Enabling API access to twitter
