@@ -121,7 +121,8 @@ With the twitter gem its one line to tweet `Twitter.update(tweet)`.
 The rest of it is to shorten the title so twitter's 140 character limit wont cut off the url or the author's name.
 
 Once this is in we'll start seeing tweets like
-* [![Using BDD and the email_spec gem to implement Email www.alexrothenberg.com/2011/10/31/usi… via @alexrothenberg](http://www.alexrothenberg.com/images/2011-11-07-twitter-is-the-new-rss-reader/using_bdd_and_email_spec_gem.png)](https://twitter.com/#!/WayWeWorkIT/status/131380463301427200) or
-* ![Twitter is the new RSS Reader www.alexrothenberg.com/2011/11/7/twitter_is… via @alexrothenberg](http://www.alexrothenberg.com/images/2011-11-07-twitter-is-the-new-rss-reader/twitter_is_the_new_rss_reader.png) (coming soon once this is published)
+[![Using BDD and the email_spec gem to implement Email www.alexrothenberg.com/2011/10/31/usi… via @alexrothenberg](http://www.alexrothenberg.com/images/2011-11-07-twitter-is-the-new-rss-reader/using_bdd_and_email_spec_gem.png)](https://twitter.com/#!/WayWeWorkIT/status/131380463301427200)
+or
+[![Twitter is the new RSS Reader http://www.alexrothenberg.com/2011/11/07/twitter-is-the-new-rss-reader.html via @alexrothenberg](http://www.alexrothenberg.com/images/2011-11-07-twitter-is-the-new-rss-reader/twitter_is_the_new_rss_reader.png)](https://twitter.com/#!/WayWeWorkIT/status/133556175563259904)
 
 Go ahead and follow [@WayWeWorkIT](https://twitter.com/#!/WayWeWorkIT) on twitter and you'll start seeing these blog posts.
