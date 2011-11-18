@@ -21,7 +21,7 @@ layout: nil
    <updated>{{ site.posts.first.date | date_to_xmlschema }}</updated>
    <id>http://www.alexrothenberg.com{{ site.posts.first.id }}</id>
    <content type="html">
-     Alex's blog feed has moved. Please update your feed reader to point at %lt;a href="http://www.alexrothenberg.com/atom.xml"%gt;http://www.alexrothenberg.com/atom.xml%lt;/a%gt;
+     Alex's blog feed has moved. Please update your feed reader to point at &lt;a href="http://www.alexrothenberg.com/atom.xml"&gt;http://www.alexrothenberg.com/atom.xml&lt;/a&gt;
    </content>
  </entry>
 
