@@ -110,6 +110,15 @@ body {
 code {
   background-color: #EBCADA;
 }
+.highlight pre {
+  margin: 0px;
+}
+.github_link {
+  background-color: gray;
+  float: right;
+  margin-bottom: 0px;
+  font-family: monospace;
+}
 
 .date {
 
