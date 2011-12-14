@@ -257,7 +257,7 @@ end
 {% endhighlight %}
 
 The stack trace is very big but if we look closely, somewhere in the middle of it we see lines below that show how capybara uses
-the [rack-test gem](https://github.com/brynary/rack-test) to submit our form.
+the [rack-test gem](https://github.com/brynary/rack-test) to submit our form.
 
 {% highlight console %}
 ~/.rvm/gems/ruby-1.8.7-p334/gems/rack-test-0.6.1/lib/rack/test.rb:66:in `post'
