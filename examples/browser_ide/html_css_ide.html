@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <meta charset=utf-8>
+    <title>Browser IDE</title>
+    <link rel="stylesheet" href="./styles.css" type="text/css" charset="utf-8">
+    <script src="jquery.min.js"></script>
+    <script type='text/javascript'>
+      $(function() {
+        var preview_contents = $('#preview').contents()
+        $('#html').keyup(function() {
+          preview_contents.find('body').html($(this).val())
+        })
+        $('#css').keyup(function() {
+          preview_contents.find('head style').remove()
+          preview_contents.find('head').append("<style>" + $(this).val() + "</style>")
+        })
+        $('#html').keyup() // Initialize
+        $('#css').keyup() // Initialize
+      })
+    </script>
+  </head>
+  <body>
+    <h1>Edit HTML and CSS</h1>
+    <div class="box">
+      <div class="label">HTML</div>
+      <textarea id="html" class="content">
+<div class="warning">This is a warning!</div>
+<div class="message">This is a message.</div>
+      </textarea>
+    </div>
+    <div class="box">
+      <div class="label">CSS</div>
+      <textarea id="css" class="content">
+.warning { color: red; }
+/* Try adding a .message style.  Make it bold. */
+      </textarea>
+    </div>
+    <div class="box">
+      <div class="label">Preview</div>
+      <iframe id="preview" class="content"></iframe>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+.box {
+  float: left;
+  height: 200px;
+  width: 49%;
+  margin: 3px;
+  margin-bottom: 25px;
+}
+.box .label {
+  background-color: gray;
+  float: left;
+  margin-bottom: 0px;
+  font-family: monospace;
+  border: 1px solid black;
+  border-bottom: 0px;
+}
+.box .content, .box .CodeMirror {
+  border: 1px solid black;
+  height: 100%;
+  width: 99%;
+  display: inline-block;
+}

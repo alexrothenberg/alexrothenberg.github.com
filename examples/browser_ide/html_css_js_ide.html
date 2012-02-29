@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <meta charset=utf-8>
+    <title>Browser IDE</title>
+    <link rel="stylesheet" href="./styles.css" type="text/css" charset="utf-8">
+    <script src="jquery.min.js"></script>
+    <script type='text/javascript'>
+      $(function() {
+        var preview_contents = $('#preview').contents()
+        $('#html').keyup(function() {
+          preview_contents.find('body').html($(this).val())
+          $('#javascript').keyup()   // let the javascript change the page 
+        })
+        $('#css').keyup(function() {
+          preview_contents.find('head style').remove()
+          preview_contents.find('head').append("<style>" + $(this).val() + "</style>")
+        })
+        $('#javascript').keyup(function() {
+          preview_contents.find('head script').remove()
+          var created_script = preview_contents[0].createElement('script');
+          created_script.text = $(this).val()
+          preview_contents.find('head')[0].appendChild(created_script)
+        })
+        $('#html').keyup() // Initialize
+        $('#css').keyup() // Initialize
+        $('#javascript').keyup() // Initialize
+      })
+    </script>
+  </head>
+  <body>
+    <h1>Edit HTML, CSS and Javascript</h1>
+    <div class="box">
+      <div class="label">HTML</div>
+      <textarea id="html" class="content">
+<div class="warning">This is a warning!</div>
+<div class="message">This is a message</div>
+<div id="js_content"></div>
+      </textarea>
+    </div>
+    <div class="box">
+      <div class="label">CSS</div>
+      <textarea id="css" class="content">
+.warning { color: red; }
+      </textarea>
+    </div>
+    <div class="box">
+      <div class="label">Javascript</div>
+      <textarea id="javascript" class="content">
+// Change the next line and watch the preview change
+var new_text = 'This text was added by js'
+
+var js_element = document.getElementById('js_content')
+js_element.innerHTML = new_text
+      </textarea>
+    </div>
+    <div class="box">
+      <div class="label">Preview</div>
+      <iframe id="preview" class="content"></iframe>
+    </div>
+  </body>
+</html>
