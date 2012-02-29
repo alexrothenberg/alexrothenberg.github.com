@@ -16,9 +16,16 @@ First we're going to build an `HTML` editor. Try it out...I'll wait.
   .demo { width:80%; margin:auto; margin-bottom:1em; }
   .demo iframe  { width: 100%; border: 5px inset; }
 </style>
+<script type="text/javascript">
+  $(function() {
+    $('#html_ide iframe').contents().find('.link_back').hide()
+    $('#html_css_ide iframe').contents().find('.link_back').hide()
+    $('#html_css_js_ide iframe').contents().find('.link_back').hide()
+    $('#complete_ide iframe').contents().find('.link_back').hide()
+  })
+</script>
 
-
-<div class="demo">
+<div id="html_ide" class="demo">
   <iframe src="/examples/browser_ide/html_ide.html" style="height:325px;">
   </iframe>
 </div>
@@ -89,7 +96,7 @@ and this is <i>italic</i>.
 
 HTML is good but any self respecting webpage will also have a `CSS` file.  We can add that too.
 
-<div class="demo">
+<div id="html_css_ide" class="demo">
   <iframe src="/examples/browser_ide/html_css_ide.html" style="height:550px;">
   </iframe>
 </div>
@@ -164,7 +171,7 @@ All put together it looks like this.
 
 So the last part of the page we want to edit is `javascript`.
 
-<div class="demo">
+<div id="html_css_js_ide" class="demo">
   <iframe src="/examples/browser_ide/html_css_js_ide.html"  style="height:550px;">
   </iframe>
 </div>
@@ -266,7 +273,7 @@ We now have a very simple IDE but its missing something all code editors have.  
 
 When we're done it will be much easier to read our code
 
-<div class="demo">
+<div id="complete_ide" class="demo">
   <iframe src="/examples/browser_ide/index.html"  style="height:550px;">
   </iframe>
 </div>
