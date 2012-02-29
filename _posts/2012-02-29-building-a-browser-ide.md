@@ -1,13 +1,7 @@
 ---
 layout: post
 title: Building a Browser IDE
-category: javascript
 ---
-
-<style>
-  .demo { width:80%; margin:auto; margin-bottom:1em; }
-  .demo iframe  { width: 100%; border: 5px inset; }
-</style>
 
 Its become so easy to share code examples as [gists](https://gist.github.com/gists) but once you start sharing html, css or javascript
 you can do so much more than share static code.  Browsers can run html, css and javascript so we can actually run the code we're sharing.
@@ -17,6 +11,12 @@ where you can  experiment with your HTML, CSS and Javascript.
 # HTML IDE
 
 First we're going to build an `HTML` editor. Try it out...I'll wait.
+
+<style>
+  .demo { width:80%; margin:auto; margin-bottom:1em; }
+  .demo iframe  { width: 100%; border: 5px inset; }
+</style>
+
 
 <div class="demo">
   <iframe src="/examples/browser_ide/html_ide.html" style="height:325px;">

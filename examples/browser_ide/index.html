@@ -50,6 +50,7 @@
   </head>
   <body>
     <h1>Edit HTML, CSS and Javascript with Syntax Highlighting</h1>
+    <div style="float:right;"><a href="http://www.alexrothenberg.com/javascript/2012/02/29/building-a-browser-ide.html">Back to article</a></div>
     <div class="box">
       <div class="label">HTML</div>
       <textarea id="html" class="content">
@@ -78,5 +79,21 @@ js_element.innerHTML = new_text
       <div class="label">Preview</div>
       <iframe id="preview" class="content"></iframe>
     </div>
+
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-5273122-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+    <!-- Google Analytics end -->
+
   </body>
 </html>
