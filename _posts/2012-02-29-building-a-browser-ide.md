@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Building a Browser IDE
+tags: javascript
 ---
 
 Its become so easy to share code examples as [gists](https://gist.github.com/gists) but once you start sharing html, css or javascript
