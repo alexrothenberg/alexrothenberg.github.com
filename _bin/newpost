@@ -13,7 +13,7 @@ post = "/Users/alex/ruby/github/alexrothenberg.github.com/_posts/#{date_prefix}-
 header = <<-END
 ---
 layout: post
-category: 
+tags: 
 title: #{post_name}
 ---
 
