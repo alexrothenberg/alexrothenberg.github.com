@@ -62,11 +62,11 @@ window.MapApp = Ember.Application.create({
 Next we'll add some [handlebars](http://emberjs.com/#toc_describing-your-ui-with-handlebars) expressions to our html page telling it to display the map as an Ember View
 (we'll create that in a minute).
 
-{% highlight html %}{% raw %}
+{% highlight html %}
 <script type='text/x-handlebars'>
-  {{view MapApp.Map geoDataBinding="MapApp.usaStatesGeoData"}}
+  { {view MapApp.Map geoDataBinding="MapApp.usaStatesGeoData"} }
 </script>
-{% endraw %}{% endhighlight %}
+{% endhighlight %}
 
 Finally we write the view
 
@@ -94,7 +94,7 @@ MapApp.Map = Ember.View.extend({
 });{% endhighlight %}
 
 Whew that is a bit of code so let's dig in. This is where we use `d3` to create the svg that looks like a map of the USA.
-`d3` (__D__ata-__D__riven __D__ocuments) works by binding data to your DOM then applying tranformations to that data.
+`d3` (Data-Driven Documents) works by binding data to your DOM then applying tranformations to that data.
 In this case our data is the GeoJSON file and our tranformations turn it into an SVG map.
 `didInsertElement` is called by Ember when the view is inserted into the page's DOM.
 
