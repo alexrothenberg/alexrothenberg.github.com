@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Alex Rothenberg - The "Magic" behind AngularJS Dependency Injection</title>
+   <meta name="author" content="Alex Rothenberg" />
+   <link rel="alternate" type="application/atom+xml" title="Alex Rothenberg - feed" href="http://feeds2.feedburner.com/alexrothenberg">
+   <link rel="stylesheet" href="/stylesheets/master.css" type="text/css" media="screen" charset="utf-8"/>
+   <link rel="stylesheet" href="/stylesheets/vibrant_ink.css" type="text/css" media="screen" charset="utf-8"/>
+   <script src="/javascripts/jquery.js" type="text/javascript" charset="utf-8"></script>
+   <script src="/javascripts/jquery.github.js" type="text/javascript" charset="utf-8"></script>
+   <link href="http://www.alexrothenberg.com/atom.xml" rel="alternate" title="Alex Rothenberg" type="application/atom+xml" />
+</head>
+<body>
+
+<div id="site">
+  <div id="header">
+    <h1>AlexRothenberg</h1>
+    <div id="menu">
+      <a href="/index.html" id="blog_link">Blog Articles</a>
+      <a href="/open_source.html" id="github_link">Open Source</a>
+      <a href="/about_me.html" id="about_me">About Me</a>
+    </div>
+  </div>
+  <div class="clearfix"/>
+
+  <div id="content">
+    <div class="post">
+  <h1>The "Magic" behind AngularJS Dependency Injection</h1>
+  <div class="date">February 11, 2013</div>
+  <div><a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="alexrothenberg" data-text="The "Magic" behind AngularJS Dependency Injection">Tweet</a>
+       <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+  </div>
+  <div class="body">
+  <p>If you&#8217;ve built anything with AngularJS you know there&#8217;s a lot of &#8220;magic&#8221; that you can usually ignore because it just works. One of the most magical parts for me is <strong>dependency injection</strong>. Just by adding a parameter to your controller function you suddenly get access to a powerful Angular service. It&#8217;s really pretty amazing but you sorta just have to trust it &#8230; until something goes wrong.</p>
+
+<p>It turns out one easy way to break an AngularJS app is to minify your javascript. This happened to me when I deployed my app to production. The Angular app was being served from a Rails application and Rails automatically minifies javascript in prodution. It turns out there&#8217;s a simple and a <a href='http://docs.angularjs.org/tutorial/step_05'>well documented fix</a> in their tutorial (search for &#8220;A Note on Minification&#8221;) that boils down to &#8220;use an array of parameter names&#8221; but it wasn&#8217;t clear to me <em>why</em> it worked.</p>
+
+<p>In the rest of this article we&#8217;re going to</p>
+
+<ol>
+<li>Build a simple AngularJS application</li>
+
+<li>See how magical dependency injection is</li>
+
+<li>Investigate how dependency injection is implemented in AngularJS</li>
+
+<li>Break our app by minifying the javascript</li>
+
+<li>Understand how the fix works</li>
+</ol>
+
+<h2 id='an_angularjs_application_using_the_github_api'>An AngularJS application using the GitHub API</h2>
+
+<p>We&#8217;re going to build a simple AngularJS app that uses the GitHub API to find the most recent commits on the angular.js project.</p>
+<div class='demo' style='text-align:center; height:300px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/index.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/index.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/index.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<p>Here&#8217;s the source for that page:</p>
+<table class='highlighttable'><tr><td class='linenos'><div class='linenodiv'><pre><code class='html'> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</code></pre></div></td><td class='code'><div class='highlight'><pre><span class='nt'>&lt;html</span> <span class='na'>ng-app</span><span class='nt'>&gt;</span>
+<span class='nt'>&lt;head&gt;</span>
+  <span class='nt'>&lt;script </span><span class='na'>src=</span><span class='s'>&quot;http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.js&quot;</span><span class='nt'>&gt;&lt;/script&gt;</span>
+
+  <span class='nt'>&lt;script&gt;</span>
+  <span class='kd'>var</span> <span class='nx'>MyController</span> <span class='o'>=</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>$scope</span><span class='p'>,</span> <span class='nx'>$http</span><span class='p'>)</span> <span class='p'>{</span>
+    <span class='nx'>$http</span><span class='p'>.</span><span class='nx'>get</span><span class='p'>(</span><span class='s1'>&#39;https://api.github.com/repos/angular/angular.js/commits&#39;</span><span class='p'>)</span>
+      <span class='p'>.</span><span class='nx'>success</span><span class='p'>(</span><span class='kd'>function</span><span class='p'>(</span><span class='nx'>commits</span><span class='p'>)</span> <span class='p'>{</span>
+        <span class='nx'>$scope</span><span class='p'>.</span><span class='nx'>commits</span> <span class='o'>=</span> <span class='nx'>commits</span>
+      <span class='p'>})</span>
+  <span class='p'>}</span>
+  <span class='nt'>&lt;/script&gt;</span>
+<span class='nt'>&lt;/head&gt;</span>
+
+<span class='nt'>&lt;body</span> <span class='na'>ng-controller=</span><span class='s'>&quot;MyController&quot;</span><span class='nt'>&gt;</span>
+  <span class='nt'>&lt;h1&gt;</span>Recent commits to AngularJS<span class='nt'>&lt;/h1&gt;</span>
+  <span class='nt'>&lt;ul&gt;</span>
+    <span class='nt'>&lt;li</span> <span class='na'>ng-repeat=</span><span class='s'>&quot;commit in commits&quot;</span><span class='nt'>&gt;</span>
+      {% raw %}{{ commit.commit.committer.date | date }}{% endraw %}
+      <span class='nt'>&lt;a</span> <span class='na'>ng-href=</span><span class='s'>&quot;https://github.com/angular/angular.js/commit/{% raw %}{{commit.sha}}{% endraw %}&quot;</span><span class='nt'>&gt;</span>{% raw %}{{ commit.sha }}{% endraw %}<span class='nt'>&lt;/a&gt;</span>
+      {% raw %}{{ commit.commit.message }}{% endraw %}
+    <span class='nt'>&lt;/li&gt;</span>
+  <span class='nt'>&lt;/ul&gt;</span>
+<span class='nt'>&lt;/body&gt;</span>
+<span class='nt'>&lt;/html&gt;</span>
+</pre></div>
+</td></tr></table>
+<p>Let&#8217;s walk through what&#8217;s going on here:</p>
+
+<ul>
+<li>Line 1 - The <code>ng-app</code> attribute tells angular to treat this page as an angular app.</li>
+
+<li>Line 6-11 - Some JavaScript that defines the controller and tell angular to &#8220;inject&#8221; the <code>$scope</code> and <code>$http</code> services.</li>
+
+<li>Line 15 - The <code>ng-controller=&quot;MyController&quot;</code> attribute tells angular the <code>body</code> tag will be scoped by the <code>MyController</code> controller.</li>
+
+<li>Line 18-22 - This section will be expanded to many <code>li</code> elements in the DOM, each containing information about one commit.</li>
+</ul>
+
+<p>This is pretty cool. Of course not everyone is a fan, in <a href='http://david.heinemeierhansson.com/2012/dependency-injection-is-not-a-virtue.html'>Dependency injection is not a virtue</a> DHH argues that it is a legacy of the Java language that is unnecessary in Ruby (and I suspect he would argue JavaScript). AngularJS is figuring out what the hash part of the url is and automatically inserting it in the page.</p>
+
+<h2 id='dependency_injection_is_magical'>Dependency Injection is magical</h2>
+
+<p>So where does dependency injection come in? Here&#8217;s where it gets weird&#8230; let&#8217;s try reordering the arguments in the controller function.</p>
+<div class='highlight'><pre><code class='javascript'><span class='kd'>var</span> <span class='nx'>MyController</span> <span class='o'>=</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>$http</span><span class='p'>,</span> <span class='nx'>$scope</span><span class='p'>)</span> <span class='p'>{</span>
+  <span class='nx'>$http</span><span class='p'>.</span><span class='nx'>get</span><span class='p'>(</span><span class='s1'>&#39;https://api.github.com/repos/angular/angular.js/commits&#39;</span><span class='p'>)</span>
+    <span class='p'>.</span><span class='nx'>success</span><span class='p'>(</span><span class='kd'>function</span><span class='p'>(</span><span class='nx'>commits</span><span class='p'>)</span> <span class='p'>{</span>
+      <span class='nx'>$scope</span><span class='p'>.</span><span class='nx'>commits</span> <span class='o'>=</span> <span class='nx'>commits</span>
+    <span class='p'>})</span>
+<span class='p'>}</span>
+</code></pre>
+</div>
+<p>We changed <code>function($scope, $http)</code> to <code>function($http, $scope)</code> and surprisingly it still works!</p>
+<div class='demo' style='text-align:center; height:300px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/args_swapped.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/args_swapped.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/args_swapped.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<p>What seems to be going on as it runs is AngularJS</p>
+
+<ol>
+<li>Knows what services our controller function needs in each parameter slot (originally <code>$scope</code> first &amp; <code>$http</code> second now <code>$http</code> first &amp; <code>$scope</code> second).</li>
+
+<li>Decides what object should &#8220;provide&#8221; each of the named services (eg. <a href='http://docs.angularjs.org/api/ng.$httpProvider'>$httpProvider</a> provides <code>$http</code>).</li>
+
+<li>Calls our controller with the appropriate providers in each slot (either <code>MyController(scope, $httpProvider)</code> or <code>MyController(scope, $httpProvider)</code>).</li>
+</ol>
+
+<p>How does Angular do step #1?</p>
+
+<p>In JavaScript the order of the parameters is important and the names do not matter to the caller (see this <a href='http://egghead.io/video/faq-scope-vs-scope/'>egghead.io video: $scope vs. scope</a>)</p>
+
+<p>Let&#8217;s take a look at some straight JavaScript and convince ourselves this is true. If we define a function divide that takes two arguments</p>
+<div class='highlight'><pre><code class='javascript'><span class='kd'>var</span> <span class='nx'>divide</span> <span class='o'>=</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>numerator</span><span class='p'>,</span> <span class='nx'>denominator</span><span class='p'>)</span> <span class='p'>{</span>
+  <span class='k'>return</span> <span class='nx'>numerator</span> <span class='o'>/</span> <span class='nx'>denominator</span><span class='p'>;</span>
+<span class='p'>}</span>
+</code></pre>
+</div>
+<p>As expected <code>divide(1, 2) == 0.5</code>.</p>
+<div class='demo' style='text-align:center; height:120px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/divide.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/divide.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/divide.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<p>When we change the order of the parameters, we also change the definition of the function.</p>
+<div class='highlight'><pre><code class='javascript'><span class='kd'>var</span> <span class='nx'>divide</span> <span class='o'>=</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>denominator</span><span class='p'>,</span> <span class='nx'>numerator</span><span class='p'>)</span> <span class='p'>{</span>
+  <span class='k'>return</span> <span class='nx'>numerator</span> <span class='o'>/</span> <span class='nx'>denominator</span><span class='p'>;</span>
+<span class='p'>}</span>
+</code></pre>
+</div>
+<p>Now the definition has changed and <code>divide(1, 2) == 2</code></p>
+<div class='demo' style='text-align:center; height:120px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/divide_args_swapped.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/divide_args_swapped.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/divide_args_swapped.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<p>It seems Angular is going above and beyond what JavaScript the language supports.</p>
+
+<h2 id='how_dependency_injection_implements_named_parameters_in_javascript'>How Dependency Injection implements Named Parameters in JavaScript</h2>
+
+<p>We saw that Angular&#8217;s dependency injection relies on the name of the parameters not their order which is a language feature called <a href='http://en.wikipedia.org/wiki/Named_parameter'>named parameters</a> that does not exist in JavaScript. How do they do it?</p>
+
+<p>AngularJS makes clever use of the fact that every object in JavaScript has a <code>toString</code> function to parse and extract the names of the parameters before deciding what arguments to call your controller function with.</p>
+
+<p>Let&#8217;s play around with <code>toString</code> and get a feel of how it works. On function objects it returns the source code definition of the object, including the function signature with the names of the parameters.</p>
+
+<p>When we call it on our <code>divide</code> function we can see this in action, <code>divide.toString() == &quot;function (numerator, denominator) {
+   return numerator / denominator;
+}&quot;
+</code></p>
+<div class='demo' style='text-align:center; height:120px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/divide_toString.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/divide_toString.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/divide_toString.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<p>Angular takes this to the next level in a function called <code>annotate</code> in <a href='https://github.com/angular/angular.js/blob/master/src/auto/injector.js#L53-61'>injector.js</a> that takes a function and returns the names of its parameters.</p>
+<table class='highlighttable'><tr><td class='linenos'><div class='linenodiv'><pre><code class='javascript'> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11</code></pre></div></td><td class='code'><div class='highlight'><pre><span class='nx'>$inject</span> <span class='o'>=</span> <span class='p'>[];</span>
+<span class='nx'>fnText</span> <span class='o'>=</span> <span class='nx'>fn</span><span class='p'>.</span><span class='nx'>toString</span><span class='p'>().</span><span class='nx'>replace</span><span class='p'>(</span><span class='nx'>STRIP_COMMENTS</span><span class='p'>,</span> <span class='s1'>&#39;&#39;</span><span class='p'>);</span>
+<span class='nx'>argDecl</span> <span class='o'>=</span> <span class='nx'>fnText</span><span class='p'>.</span><span class='nx'>match</span><span class='p'>(</span><span class='nx'>FN_ARGS</span><span class='p'>);</span>
+<span class='nx'>forEach</span><span class='p'>(</span><span class='nx'>argDecl</span><span class='p'>[</span><span class='mi'>1</span><span class='p'>].</span><span class='nx'>split</span><span class='p'>(</span><span class='nx'>FN_ARG_SPLIT</span><span class='p'>),</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>arg</span><span class='p'>){</span>
+  <span class='nx'>arg</span><span class='p'>.</span><span class='nx'>replace</span><span class='p'>(</span><span class='nx'>FN_ARG</span><span class='p'>,</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>all</span><span class='p'>,</span> <span class='nx'>underscore</span><span class='p'>,</span> <span class='nx'>name</span><span class='p'>){</span>
+    <span class='nx'>$inject</span><span class='p'>.</span><span class='nx'>push</span><span class='p'>(</span><span class='nx'>name</span><span class='p'>);</span>
+  <span class='p'>});</span>
+<span class='p'>});</span>
+<span class='nx'>fn</span><span class='p'>.</span><span class='nx'>$inject</span> <span class='o'>=</span> <span class='nx'>$inject</span><span class='p'>;</span>
+<span class='c1'>// ...</span>
+<span class='k'>return</span> <span class='nx'>$inject</span><span class='p'>;</span>
+</pre></div>
+</td></tr></table>
+<ul>
+<li>line 2 - use the <code>toString()</code> trick to get the function definition.</li>
+
+<li>line 3 - do regular expression pattern matching <code>FN_ARGS = /^function\s*[^\(]*\(\s*([^\)]*)\)/m</code> to find the function signature.</li>
+
+<li>line 4-8 - loop through all the parameters and save their names in an array.</li>
+
+<li>line 11 - return the array or parameter names.</li>
+</ul>
+
+<p>We can see this in action with our trusty <code>divide</code> function, <code>angular.injector().annotate(divide) == [&quot;numerator&quot;, &quot;denominator&quot;]</code></p>
+<div class='demo' style='text-align:center; height:120px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/divide_annotate.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/divide_annotate.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/divide_annotate.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<h2 id='minification_breaks_our_app'>Minification breaks our App</h2>
+
+<p>The technique of using <code>toString</code> has a big problem. We often minify our javascript before sending it to the browser, in my case the Rails asset pipeline was configured to automatically do this in the production environment.</p>
+<div class='highlight'><pre><code class='javascript'><span class='c1'>// whitespace re-added for readability</span>
+<span class='kd'>var</span> <span class='nx'>MyController</span> <span class='o'>=</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>e</span><span class='p'>,</span><span class='nx'>t</span><span class='p'>)</span> <span class='p'>{</span>
+  <span class='nx'>t</span><span class='p'>.</span><span class='nx'>get</span><span class='p'>(</span><span class='s2'>&quot;https://api.github.com/repos/angular/angular.js/commits&quot;</span><span class='p'>)</span>
+    <span class='p'>.</span><span class='nx'>success</span><span class='p'>(</span><span class='kd'>function</span><span class='p'>(</span><span class='nx'>t</span><span class='p'>)</span> <span class='p'>{</span>
+      <span class='nx'>e</span><span class='p'>.</span><span class='nx'>commits</span><span class='o'>=</span><span class='nx'>t</span>
+    <span class='p'>})</span>
+<span class='p'>}</span>
+</code></pre>
+</div>
+<p>When minified the parameter names are mangled to <code>e</code> or <code>t</code> so cannot be mapped to service names by angular. How can it know that <code>t</code> should be implemented by the <code>$httpProvider</code> or that <code>e</code> is the <code>$scope</code>?</p>
+<div class='demo' style='text-align:center; height:120px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/minified_broken.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/minified_broken.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/minified_broken.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<p>In fact if you open the <a href='/examples/angularjs_dependency_injection/minified_broken.html'>minified_broken.html</a> example and look at the console you will see the error <code>Error: Unknown provider: eProvider &lt;- e</code>.</p>
+
+<p>Angular&#8217;s <code>annotate</code> function is sophisticated enough to handle minification, in fact, I only showed part of it before. When we look at the whole thing, we see it can annotate a function <em>or</em> an array of parameter name strings followed by a function. In the array form, the first string names the first argument, the second string names the second, etc. and the actual names of the parameters are unimportant.</p>
+<div class='highlight'><pre><code class='javascript'><span class='kd'>function</span> <span class='nx'>annotate</span><span class='p'>(</span><span class='nx'>fn</span><span class='p'>)</span> <span class='p'>{</span>
+  <span class='kd'>var</span> <span class='nx'>$inject</span><span class='p'>,</span>
+      <span class='nx'>fnText</span><span class='p'>,</span>
+      <span class='nx'>argDecl</span><span class='p'>,</span>
+      <span class='nx'>last</span><span class='p'>;</span>
+
+  <span class='k'>if</span> <span class='p'>(</span><span class='k'>typeof</span> <span class='nx'>fn</span> <span class='o'>==</span> <span class='s1'>&#39;function&#39;</span><span class='p'>)</span> <span class='p'>{</span>
+    <span class='k'>if</span> <span class='p'>(</span><span class='o'>!</span><span class='p'>(</span><span class='nx'>$inject</span> <span class='o'>=</span> <span class='nx'>fn</span><span class='p'>.</span><span class='nx'>$inject</span><span class='p'>))</span> <span class='p'>{</span>
+      <span class='c1'>// omitting the code we saw before</span>
+    <span class='p'>}</span>
+  <span class='p'>}</span> <span class='k'>else</span> <span class='k'>if</span> <span class='p'>(</span><span class='nx'>isArray</span><span class='p'>(</span><span class='nx'>fn</span><span class='p'>))</span> <span class='p'>{</span>
+    <span class='nx'>last</span> <span class='o'>=</span> <span class='nx'>fn</span><span class='p'>.</span><span class='nx'>length</span> <span class='o'>-</span> <span class='mi'>1</span><span class='p'>;</span>
+    <span class='nx'>assertArgFn</span><span class='p'>(</span><span class='nx'>fn</span><span class='p'>[</span><span class='nx'>last</span><span class='p'>],</span> <span class='s1'>&#39;fn&#39;</span><span class='p'>)</span>
+    <span class='nx'>$inject</span> <span class='o'>=</span> <span class='nx'>fn</span><span class='p'>.</span><span class='nx'>slice</span><span class='p'>(</span><span class='mi'>0</span><span class='p'>,</span> <span class='nx'>last</span><span class='p'>);</span>
+  <span class='p'>}</span> <span class='k'>else</span> <span class='p'>{</span>
+    <span class='nx'>assertArgFn</span><span class='p'>(</span><span class='nx'>fn</span><span class='p'>,</span> <span class='s1'>&#39;fn&#39;</span><span class='p'>,</span> <span class='kc'>true</span><span class='p'>);</span>
+  <span class='p'>}</span>
+  <span class='k'>return</span> <span class='nx'>$inject</span><span class='p'>;</span>
+<span class='p'>}</span>
+</code></pre>
+</div>
+<p>When we can now redefine our <code>MyController</code></p>
+<div class='highlight'><pre><code class='javascript'><span class='kd'>var</span> <span class='nx'>MyController</span> <span class='o'>=</span> <span class='p'>[</span><span class='s1'>&#39;$scope&#39;</span><span class='p'>,</span> <span class='s1'>&#39;$http&#39;</span><span class='p'>,</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>$scope</span><span class='p'>,</span> <span class='nx'>$http</span><span class='p'>)</span> <span class='p'>{</span>
+  <span class='nx'>$http</span><span class='p'>.</span><span class='nx'>get</span><span class='p'>(</span><span class='s1'>&#39;https://api.github.com/repos/angular/angular.js/commits&#39;</span><span class='p'>)</span>
+    <span class='p'>.</span><span class='nx'>success</span><span class='p'>(</span><span class='kd'>function</span><span class='p'>(</span><span class='nx'>commits</span><span class='p'>)</span> <span class='p'>{</span>
+      <span class='nx'>$scope</span><span class='p'>.</span><span class='nx'>commits</span> <span class='o'>=</span> <span class='nx'>commits</span>
+    <span class='p'>})</span>
+<span class='p'>}]</span>
+</code></pre>
+</div>
+<p>When it is minified the strings are not touched so <code>annotate</code> will still work.</p>
+<div class='highlight'><pre><code class='javascript'><span class='kd'>var</span> <span class='nx'>MyController</span><span class='o'>=</span> <span class='p'>[</span><span class='s2'>&quot;$scope&quot;</span><span class='p'>,</span> <span class='s2'>&quot;$http&quot;</span><span class='p'>,</span> <span class='kd'>function</span><span class='p'>(</span><span class='nx'>e</span><span class='p'>,</span><span class='nx'>t</span><span class='p'>)</span> <span class='p'>{</span>
+  <span class='nx'>t</span><span class='p'>.</span><span class='nx'>get</span><span class='p'>(</span><span class='s2'>&quot;https://api.github.com/repos/angular/angular.js/commits&quot;</span><span class='p'>)</span>
+    <span class='p'>.</span><span class='nx'>success</span><span class='p'>(</span><span class='kd'>function</span><span class='p'>(</span><span class='nx'>t</span><span class='p'>)</span> <span class='p'>{</span>
+      <span class='nx'>e</span><span class='p'>.</span><span class='nx'>commits</span><span class='o'>=</span><span class='nx'>t</span>
+    <span class='p'>})</span>
+<span class='p'>}]</span>
+</code></pre>
+</div>
+<p>We can see the <code>annotate</code> function parsing this array <code>angular.injector().annotate(MyController) == [&quot;$scope&quot;, &quot;$http&quot;]</code></p>
+<div class='demo' style='text-align:center; height:140px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/minified_annotate.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/minified_annotate.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/minified_annotate.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<p>Of course what really matters is that it works on the page - which it does.</p>
+<div class='demo' style='text-align:center; height:300px; width:80%;'>
+  <div class='github_link'><a href='/examples/angularjs_dependency_injection/minified_working.html' target='_blank'>http://alexrothenberg.github.com/examples/angularjs_dependency_injection/minified_working.html</a></div>
+  <iframe src='/examples/angularjs_dependency_injection/minified_working.html' style='height:100%;width:100%'>
+  </iframe>
+</div>
+<p>If you&#8217;ve made it to the end of this long post, I hope you&#8217;ve enjoyed the journey into how AngularJS knows what services to inject in your controllers. Again all you really need to know is to use an array naming the parameters followed by your function but I hope you enjoyed learning how it actually works. I know I did!</p>
+  </div>
+
+  <div id="disqus_thread"></div>
+  <script type="text/javascript" src="http://alexrothenberg.disqus.com/embed.js"> </script>
+  <noscript>Please enable JavaScript to <a href="http://alexrothenberg.disqus.com/?url=ref">view the discussion thread.</a></noscript>
+</div>
+  </div>
+
+  <div id='footer'>
+    Copyright &copy; 2008-2013 Alex Rothenberg. Some rights reserved.
+  </div>
+
+</div>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-5273122-1']);
+  _gaq.push(['_setSiteSpeedSampleRate', 100]);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<!-- Google Analytics end -->
+
+
+</body>
+</html>
