@@ -1,0 +1,15 @@
+<html ng-app>
+<head>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.js"></script>
+
+  <script>
+    var divide = function(numerator, denominator) {
+      return numerator / denominator;
+    }
+  </script>
+</head>
+<body ng-controller="MyController">
+  <h1>Divide annotate()</h1>
+  Angular can extract the names of parameters <a href="#" onClick="javascript:alert(angular.injector().annotate(divide));">angular.injector().annotate(divide)</a>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<html ng-app>
+<head>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.js"></script>
+
+  <script>
+    var MyController=["$scope","$http",function(e,t){t.get("https://api.github.com/repos/angular/angular.js/commits").success(function(t){e.commits=t})}]
+  </script>
+</head>
+<body ng-controller="MyController">
+  <h1>MyController annotate()</h1>
+  Angular can extract the names of parameters of minified javascript
+  <a href="#" onClick="javascript:alert(angular.injector().annotate(MyController));">angular.injector().annotate(MyController)</a>
+  using a list of parameter names.
+</body>
+</html>

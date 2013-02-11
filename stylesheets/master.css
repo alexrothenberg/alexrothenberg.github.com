@@ -120,6 +120,11 @@ code {
   font-family: monospace;
 }
 
+.demo {
+  margin: 0px auto;
+  margin-bottom: 40px;
+}
+
 .date {
 
 }
@@ -146,4 +151,8 @@ li p {
   border: aliceBlue;
   padding: 10px;
   border-style: solid;
+}
+
+.highlighttable td.code {
+  width: 100%;
 }

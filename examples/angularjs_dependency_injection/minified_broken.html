@@ -1,0 +1,20 @@
+<html ng-app>
+<head>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.js"></script>
+
+  <script>
+    var MyController=function(e,t){t.get("https://api.github.com/repos/angular/angular.js/commits").success(function(t){e.commits=t})}
+  </script>
+</head>
+<body ng-controller="MyController">
+  <h1>Recent commits to AngularJS</h1>
+  The minified controller does not work :(
+  <ul>
+    <li ng-repeat="commit in commits">
+      {{ commit.commit.committer.date | date}}
+      <a ng-href="https://github.com/angular/angular.js/commit/{{commit.sha}}">{{ commit.sha }}</a>
+      {{commit.commit.message}}
+    </li>
+  </ul>
+</body>
+</html>
