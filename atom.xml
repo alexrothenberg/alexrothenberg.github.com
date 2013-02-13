@@ -3,7 +3,7 @@ layout: nil
 ---
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
- 
+
  <title>Alex Rothenberg</title>
  <link href="http://www.alexrothenberg.com/atom.xml" rel="self"/>
  <link href="http://www.alexrothenberg.com/" rel="alternate" type="text/html" />
@@ -21,9 +21,8 @@ layout: nil
    <published>{{ post.date | date_to_xmlschema }}</published>
    <updated>{{ post.date | date_to_xmlschema }}</updated>
    <id>http://www.alexrothenberg.com{{ post.id }}</id>
-   <category>{{post.tags}}</category>
    <content type="html">{{ post.content | xml_escape }}</content>
  </entry>
  {% endfor %}
- 
+
 </feed>
