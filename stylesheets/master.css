@@ -123,6 +123,8 @@ code {
 .demo {
   margin: 0px auto;
   margin-bottom: 40px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .date {
