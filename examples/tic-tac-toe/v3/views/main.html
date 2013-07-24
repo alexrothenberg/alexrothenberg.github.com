@@ -1,0 +1,25 @@
+<div class="hero-unit">
+  <h1>Can you win Tic Tac Toe?</h1>
+  <div>
+    <button ng-click="newGame()">New Game</button>
+    <span ng-show="winner">{{winner}} has won!!</span>
+  </div>
+
+  <table id="board">
+    <tr>
+      <td class="top left"      ng-click="play(1)">{{markAt(1)}}</td>
+      <td class="top middle"    ng-click="play(2)">{{markAt(2)}}</td>
+      <td class="top right"     ng-click="play(3)">{{markAt(3)}}</td>
+    </tr>
+    <tr>
+      <td class="center left"   ng-click="play(4)">{{markAt(4)}}</td>
+      <td class="center middle" ng-click="play(5)">{{markAt(5)}}</td>
+      <td class="center right"  ng-click="play(6)">{{markAt(6)}}</td>
+    </tr>
+    <tr>
+      <td class="bottom left"   ng-click="play(7)">{{markAt(7)}}</td>
+      <td class="bottom middle" ng-click="play(8)">{{markAt(8)}}</td>
+      <td class="bottom right"  ng-click="play(9)">{{markAt(9)}}</td>
+    </tr>
+  </table>
+</div>

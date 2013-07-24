@@ -1,0 +1,54 @@
+body {
+    background-color: #eee;
+    margin: 0;
+}
+
+.hero-unit {
+    margin: 0px auto 0 auto;
+    width: 400px;
+    font-size: 18px;
+    font-weight: 200;
+    line-height: 30px;
+    border-radius: 6px;
+    padding: 10px;
+}
+
+h1 {
+    text-align: center;
+}
+
+table {
+    border: 1;
+    table-layout: fixed;
+    margin: 10px auto 0 auto;
+}
+
+#board td {
+    height: 50px;
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 48px;
+    line-height: 0px;
+}
+
+.left {
+    border-right-style: solid;
+}
+.middle {
+    border-left-style: solid;
+    border-right-style: solid;
+}
+.right {
+    border-left-style: solid;
+}
+.top {
+    border-bottom-style: solid;
+}
+.center {
+    border-top-style: solid;
+    border-bottom-style: solid;
+}
+.bottom {
+    border-top-style: solid;
+}
