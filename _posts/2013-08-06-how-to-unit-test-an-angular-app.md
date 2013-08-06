@@ -554,4 +554,6 @@ describe('Service: TicTacToeGame', function () {
   })
 });{% endhighlight %}
 
+If you want to look at the example we've built its all on github [alexrothenberg/angular-tic-tac-toe](https://github.com/alexrothenberg/angular-tic-tac-toe).
+
 I hope you've found this journey useful and will make sure to test the next Angular app you write!
