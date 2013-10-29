@@ -39,7 +39,7 @@ end
 
 Reading this you can see the audit trail code on line 3 but its not really clear that that is recording to an audit log.  Additionally a real implementation with error handling and additional logic would almost certainly be more than a single line causing a lot of duplication once we copy-and-paste into another class.
 
-We need an `AuditLog` thing to DRY up the code and make the dependency more explicit.
+We need an `AuditTrail` thing to DRY up the code and make the dependency more explicit.
 
 ## The module include anti-pattern
 
