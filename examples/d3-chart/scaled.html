@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  .bar {
+    fill: steelblue;
+  }
+
+  .bar:hover {
+    fill: brown;
+  }
+
+  .axis text {
+    font: 10px sans-serif;
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  .x.axis path {
+    display: none;
+  }
+</style>
+<body>
+<H1>Snow in Boston</H1>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+  var svg = d3.select('body').append('svg')
+              .attr('height', '200')
+              .attr('width', '500');
+  var g = svg.append('g');
+
+  var parseRow = function(row) {
+    return {
+      month: row.Month,
+      average: parseFloat(row.Average)
+    }
+  };
+
+  d3.tsv('data/snow.tsv', parseRow, function(data) {
+    var months = data.map(function(d) { return d.month })
+    var x = d3.scale.ordinal()
+            .rangeRoundBands([0, 400], .1)
+            .domain(months)
+
+    var averages = data.map(function(d) { return d.average })
+    var y = d3.scale.linear()
+            .range([150, 0])
+            .domain([0, d3.max(averages)])
+
+    var rect = g.selectAll('.bar').data(data).enter().append('rect')
+    rect.attr('class', 'bar')
+        .attr('width', x.rangeBand())
+        .attr('height', function(d) { return 150 - y(d.average)})
+        .attr('x', function(d) { return x(d.month) })
+        .attr('y', function(d) { return y(d.average) })
+  })
+</script>
+</body>

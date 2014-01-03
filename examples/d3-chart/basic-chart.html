@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  .bar {
+    fill: steelblue;
+  }
+
+  .bar:hover {
+    fill: brown;
+  }
+
+  .axis text {
+    font: 10px sans-serif;
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  .x.axis path {
+    display: none;
+  }
+</style>
+<body>
+<H1>Snow in Boston</H1>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+  var svg = d3.select('body').append('svg')
+              .attr('height', '200')
+              .attr('width', '500');
+  var g = svg.append('g');
+
+  var parseRow = function(row) {
+    return {
+      month: row.Month,
+      average: parseFloat(row.Average)
+    }
+  };
+
+  d3.tsv('data/snow.tsv', parseRow, function(data) {
+    var rect = g.selectAll('.bar').data(data).enter().append('rect')
+    rect.attr('class', 'bar')
+        .attr('width', 10)
+        .attr('height', 100)
+        .attr('x', function(d) { return d.month.charCodeAt(0)})
+  })
+</script>
+</body>
