@@ -4,7 +4,7 @@ tags:
 title: Learning D3.js by Building a Chart
 ---
 
-If you're doing any JavaScript you've probably heard of [d3.js](http://d3js.org/) in fact [Github Graphs](https://github.com/blog/1093-introducing-the-new-github-graphs)
+If you're doing any JavaScript you've probably heard of [d3.js](http://d3js.org/). In fact [Github Graphs](https://github.com/blog/1093-introducing-the-new-github-graphs)
 are built with it so even if you weren't aware, I'm sure you've seen it there.
 But maybe you haven't been sure how to get started using it yourself. Its not too hard once you have a mental model of how it works.
 
@@ -19,7 +19,7 @@ Today we're going to walk through how to build a bar chart that shows some inter
 Before we get into any details here are a few big picture ideas to keep in mind
 
 * d3 is all about binding data with DOM elements.
-* d3 has an enormous API coving charts, maps, arrays, and all sorts of other things
+* d3 has an enormous API covering charts, maps, arrays, and all sorts of other things
 * svg is a great fit when you're creating charts or other visualizations
 
 # Binding data to the DOM
@@ -32,7 +32,7 @@ Let's start by seeing how we can use it to add some DOM elements.
 {% endhighlight %}
 
 Once we include the `d3.js` script in our page, we have a top level `d3` object we can use to start adding elements.
-If you haven't used SVG (scalable vector graphics) its series of tags added in HTML5 that let us define shapes on our page.
+If you haven't used SVG (scalable vector graphics) its a series of tags added in HTML5 that let us define shapes on our page.
 They can be styled with css and manipulated with javascript just like traditional html tags but are designed more for shapes than text so we can do all sorts of interesting drawings with them.
 
 {% highlight javascript linenos%}
@@ -48,7 +48,7 @@ This looks kinda like jQuery but with a slightly different syntax and that's not
 2. Line 2-3 - D3 chains everything just like jQuery so we can set `height` and `width` attributes on the svg element
 3. Line 4 - Add a `g` (or "group") element within the svg
 
-The page wont look any different to a user because the svg and g elements don't have any visual representation however if we were to inspect the dom we'd see our tags in there
+The page won't look any different to a user because the svg and g elements don't have any visual representation, however, if we were to inspect the DOM we'd see our tags in there
 
 {% highlight html linenos%}
 <body>
@@ -75,7 +75,7 @@ Now we will use the [d3 tsv API](https://github.com/mbostock/d3/wiki/CSV#wiki-ts
 Before we look at the code there are two concepts to mention briefly.
 We're going to create a bunch of `rect` elements within our svg.
 As the name suggests the browser will draw them as rectangles.
-Also the main mechanism behind d3 is joining data to the dom. Basically as dataset is joins to a set of dom elements and d3 ensures that there will be the same number of dom elements as rows of data. Mike Bostock has explains this really well in [thinking with joins](http://bost.ocks.org/mike/join/). ![Thinking with joins](/examples/d3-chart/thinking_with_joins.png)
+Also the main mechanism behind d3 is joining data to the DOM. Basically a dataset is joined to a set of DOM elements and d3 ensures that there will be the same number of DOM elements as rows of data. Mike Bostock has explained this really well in [thinking with joins](http://bost.ocks.org/mike/join/). ![Thinking with joins](/examples/d3-chart/thinking_with_joins.png)
 
 So what does this look like in code?
 
@@ -103,10 +103,10 @@ So what does this look like in code?
   })
 {% endhighlight %}
 
-1. Line 14 - Load and parse the `snow.tsv` file. We give it 2 callbacks, the first for formatting each row and the last to process the data by adding it to our dom
+1. Line 14 - Load and parse the `snow.tsv` file. We give it 2 callbacks, the first for formatting each row and the last to process the data by adding it to our DOM
 2. Lines 7-12 - Format each row by converting the `average` column from a string to a number
 3. Line 15 - Bind our data to all the elements with the `bar` class (it's an empty set when the page loads but this becomes useful further on)
-4. Line 16 - for each data item without a corresponding dom element (that's what `enter()` means) create a `rect` element
+4. Line 16 - for each data item without a corresponding DOM element (that's what `enter()` means) create a `rect` element
 5. Lines 17-20 - set a bunch of positioning attributes on each rect. The attributes can either be a contant or a function that gets called with the data item d3 attached to this particular rect element.
 
 Now we have a bar but they're all on top of each other (mouse over what's below to see)
@@ -117,8 +117,8 @@ Now we have a bar but they're all on top of each other (mouse over what's below 
   </iframe>
 </div>
 
-To space the bars our a bit we can change the logic for the `x` attribute to `.attr('x', function(d) { return d.month.charCodeAt(0) * 5 })`
-but now its weirdly in the middle of the page.
+To space the bars out a bit we can change the logic for the `x` attribute to `.attr('x', function(d) { return d.month.charCodeAt(0) * 5 })`
+but now it's weirdly in the middle of the page.
 
 <div class="demo" style="text-align:center; height:350px; width:80%;">
   <div class="github_link"><a href="/examples/d3-chart/basic-chart2.html" target="_blank">http://alexrothenberg.github.com/examples/d3-chart/basic-chart2.html</a></div>
@@ -126,7 +126,7 @@ but now its weirdly in the middle of the page.
   </iframe>
 </div>
 
-Next we will look at some d3 chart APIs that can help us position the bars and make it independent of the first letter of the month.
+Next we will look at some d3 chart APIs that can help us position the bars instead of spacing based on the first letter of each month.
 
 ## Scaling with the D3 Scale API
 
@@ -259,9 +259,9 @@ var loadData = function() {
 loadData()
 {% endhighlight %}
 
-1. Line 1 - we wrap the call to `d3.tsv` in a new the `loadData` function.
+1. Line 1 - we wrap the call to `d3.tsv` in a new `loadData` function.
 2. Line 2-4 - pick which data file to load (we cannot hardcode 'data/snow.tsv' anymore)
-3. Lines 7-9 - Remember when we talked about thinking in joins and how d3 binds data to dom elements. Previously we only had the `enter()` line which handles the case when there are more rows of data than dom elements. Now we need to handle the opposite case when there are more dom elements than rows of data. In that case we use `exit()` and delete those elements.
+3. Lines 7-9 - Remember when we talked about thinking in joins and how d3 binds data to DOM elements? Previously we only had the `enter()` line which handles the case when there are more rows of data than DOM elements. Now we need to handle the opposite case when there are more DOM elements than rows of data. In that case we use `exit()` and delete those elements.
 
 <div class="demo" style="text-align:center; height:350px; width:80%;">
   <div class="github_link"><a href="/examples/d3-chart/different-statistics.html" target="_blank">http://alexrothenberg.github.com/examples/d3-chart/different-statistics.html</a></div>
@@ -309,7 +309,7 @@ d3.tsv(dataFile, parseRow, function(data) {
 })
 {% endhighlight %}
 
-1. Line 4 - Bind to the change event so this gets called when the sort checkox changes
+1. Line 4 - Bind to the change event so this gets called when the sort checkbox changes
 2. Line 5-9 - Sort the months in the right way and update the x domain
 3. Line 11-12 - Use the `d3.transition` API to tell the duration (750 ms) and make the elements start not all at once.
 4. Line 14-16 - Animate all the rectangles (they have class `.bar`)
