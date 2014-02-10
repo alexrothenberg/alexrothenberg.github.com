@@ -58,7 +58,7 @@ The page won't look any different to a user because the svg and g elements don't
 </body>
 {% endhighlight %}
 
-We're started on the document part so time to add the data. Here's a simple `tsv` (tab-separated values) file of [average snow totals in Boston](http://www.erh.noaa.gov/box/climate/bossnw.shtml) by month
+We're started on the document part so time to add the data. Here's a simple `tsv` (tab-separated values) file of [average snow totals in Boston](http://www.erh.noaa.gov/box/climate/bossnw.shtml) by month (all the data files are on [github](https://github.com/alexrothenberg/alexrothenberg.github.com/tree/master/examples/d3-chart/data) if you want to look).
 
 {% highlight javascript%}
 Month  Average
@@ -205,7 +205,7 @@ d3.tsv('data/snow.tsv', parseRow, function(data) {
   var yAxis = d3.svg.axis()
                 .scale(y)
                 .orient('left')
-                .tickFormat(d3.format('.0%'));
+                .tickFormat(d3.format('.0'));
   d3.select('.y.axis').call(yAxis)
 })
 {% endhighlight %}
@@ -245,7 +245,7 @@ There's our simple select box and now for the javascript changes.
 var loadData = function() {
   var metric = document.getElementById('metric').selectedOptions[0].text;
   var dataFile = 'data/' + metric + '.tsv'
-  d3.tsv(data, parseRow, function(data) {
+  d3.tsv(dataFile, parseRow, function(data) {
     // .. unchanged code ...
 
     var rect = g.selectAll('.bar').data(data);
@@ -285,6 +285,14 @@ and then add the logic.
 {% highlight javascript linenos%}
 d3.tsv(dataFile, parseRow, function(data) {
   // .. all the unchanged code ... then
+
+  var monthIndex = function(monthName) {
+    var months = {
+      Jan: 1, Feb: 2, Mar: 3, Apr:  4, May:  5, Jun:  6,
+      Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12
+    };
+    return months[monthName];
+  }
 
   d3.select('input').on('change', function() {
     var sortByAverage = function(a, b) { return b.average - a.average; };
