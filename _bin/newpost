@@ -8,12 +8,12 @@ end
 date_prefix = Time.now.strftime("%Y-%m-%d")
 post_name = ARGV.join ' '
 post_file_name = post_name.strip.downcase.gsub(/ /, '-')
-post = "/Users/alex/ruby/github/alexrothenberg.github.com/_posts/#{date_prefix}-#{post_file_name}.md"
+post = "_posts/#{date_prefix}-#{post_file_name}.md"
 
 header = <<-END
 ---
 layout: post
-tags: 
+tags:
 title: #{post_name}
 ---
 
