@@ -1,0 +1,66 @@
+==================================================================
+https://keybase.io/alexrothenberg
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://www.alexrothenberg.com
+  * I am alexrothenberg (https://keybase.io/alexrothenberg) on keybase.
+  * I have a public key with fingerprint BD37 11A2 4CA9 9DC3 FE1F  1F4B E978 24DB 3CDB 639F
+
+To claim this, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "fingerprint": "bd3711a24ca99dc3fe1f1f4be97824db3cdb639f",
+            "host": "keybase.io",
+            "key_id": "e97824db3cdb639f",
+            "uid": "bb65ce1eecb3c4c8b8cd4c74537df700",
+            "username": "alexrothenberg"
+        },
+        "service": {
+            "hostname": "www.alexrothenberg.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1411060871,
+    "expire_in": 157680000,
+    "prev": "9016559050fbd91e4bba0a71abe13e5796cc4fd3812c2006402072eff6ef2a01",
+    "seqno": 2,
+    "tag": "signature"
+}
+
+with the aforementioned key, yielding the PGP signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v1.0.5
+Comment: https://keybase.io/crypto
+
+yMHtAnicbZFbSBRRGIBnvWQu2BpZaobomJeHZTtz2Zmd9SGkh5DUoiKLFda5nNmd
+0pl1dtx1FSMFW0EEMyFckiDZomCJMhIKKaWQiBRKQrv6IJIiBZKRUdIZsYeg83I4
+///93/nP+Z9mJGNWyxKT6gG4N8PyYtzSjJ3My4q24YImRXB3G34Obm6yovqgHtAV
+1cDduCBRLEHwJC3yHCeJlAwJmZBpAXKsi6QlgRIlgaE4Gbfjfi1oViCNwAehQ9FQ
+DB28ioSi/+GbNxOCwDhFSEAoohwtugSXKNEiSzspVpJZAEwwCHWVb4SI5htgi64Z
+fqgKUPfh7XYc5UKKCM3OzQa2uHA47PiXdYhaI3IFUEQTtQbE+A0j4DYVRiSwWQMF
+75bNKyiqhP4BFYSgHlQ0FXcTiBQNxdQTNEEABrhYwo7DloCiQ69iEk6WcQG0zGtg
+CCk5QDBOJwecQBYkjoC0IPCAZwlegAQFnSzHiCItS5SLIEUSAIYGJGBJKMsMlEke
+ELj5viZVw90kapP3IWVQ8am80axDvH3iSV0KZrFi21KTzEli1vTMv/N96UvbAPVF
+sbntpPR19FT10goNT9T/Tivr7419uZMzHekCK+/c1MjARuH7QPgn2f42cbpwOvgm
+fGYZ67Mmpuv2F89jdRfvj8eGy22DoVqPx9Z0daF11N+96tu9p3qy+9Ms7Gl1ZZfH
+km8aO16t16RP5CUtT56di/oPh1K67Jenin9VXcBKj3449jzzyuuheGIGq9gbrbzR
+H4x3jA08WljsyDeOJ2y7ep9NeFZrLx0M5Ykra/HOip35630t1L67pd/HpspGOs8P
+RR/PfruV2xTJqOJrujYmHdjHJd/t6yWjs9FF25FEbtHw/IOHWWs/7pXkRLzXCsZ6
+BmcOrMezD1UWfP4D0tsWXA==
+=ddnA
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/alexrothenberg
+
+==================================================================
+
