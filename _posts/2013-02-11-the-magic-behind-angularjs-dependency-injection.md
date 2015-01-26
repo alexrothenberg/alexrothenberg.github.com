@@ -103,7 +103,7 @@ What seems to be going on as it runs is AngularJS
 
 1. Knows what services our controller function needs in each parameter slot (originally `$scope` first & `$http` second now `$http` first & `$scope` second).
 2. Decides what object should "provide" each of the named services (eg. [$httpProvider](http://docs.angularjs.org/api/ng.$httpProvider) provides `$http`).
-3. Calls our controller with the appropriate providers in each slot (either `MyController(scope, $httpProvider)` or `MyController(scope, $httpProvider)`).
+3. Calls our controller with the appropriate providers in each slot (either `MyController(scope, $httpProvider)` or `MyController($httpProvider, scope)`).
 
 How does Angular do step #1?
 
